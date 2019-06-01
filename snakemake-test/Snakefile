@@ -1,0 +1,50 @@
+SAMPLES = ['Sample1', 'Sample2', 'Sample3']
+
+rule all:
+    input:
+        'result.txt'
+
+rule quantify_genes:
+    input:
+         genome = 'genome.fa',
+         r1 = 'data/{sample}.R1.fastq.gz',
+         r2 = 'data/{sample}.R2.fastq.gz'
+    output:
+          '{sample}.txt'
+    shell:
+         'echo {input.genome} {input.r1} {input.r2}> {output}'
+
+rule collate_outputs:
+    input:
+        expand('{sample}.txt', sample=SAMPLES)
+    output:
+        'test.txt'
+    run:
+        with open(output[0], 'w') as out:
+            for i in input:
+                sample = i.split('.')[0]
+                for line in open(i):
+                    out.write(sample + ' ' + line)
+
+# Second Challenge
+rule print_result:
+    input:
+        'test.txt'
+    output:
+        'result.txt'
+    run:
+        with open(output[0], 'w') as out:
+            with open(input[0], 'r') as test:
+                result = ''
+                samples = test.readlines()
+
+                # Add all but last sample names to lines.
+                for sample in samples[:-1]:
+                    sample_name = sample.split(' ')[0]
+                    result += (sample_name + ', ')
+
+                # Add final sample name after 'and'.
+                sample_name = samples[-1].split(' ')[0]
+                result += ('and ' + sample_name + ' are successfully processed.')
+
+                out.write(result)

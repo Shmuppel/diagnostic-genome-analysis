@@ -1,0 +1,1 @@
+genome.fa data/Sample2.R1.fastq.gz data/Sample2.R2.fastq.gz
