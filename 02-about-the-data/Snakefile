@@ -1,0 +1,39 @@
+import os
+from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
+from snakemake.remote.NCBI import RemoteProvider as NCBIRemoteProvider
+
+configfile: "config.yaml"
+
+HTTP = HTTPRemoteProvider()
+NCBI = NCBIRemoteProvider(email="n.s.van.der.vegt@st.hanze.nl")
+
+rule all:
+    input:
+        "zika_virus_multifasta.fasta"
+
+rule retrieve_remote_data_http:
+    input:
+        HTTP.remote("bioinf.nl/~fennaf/snakemake/test.txt", keep_local=True)
+    run:
+        outputName = os.path.basename(input[0])
+        shell("mv {input} {outputName}")
+
+rule retrieve_remote_data_ncbi:
+    input:
+        NCBI.remote("KY785484.1.fasta", db="nuccore")
+    run:
+        outputName = os.path.basename("test.fasta")
+        shell("mv {input} {outputName}")
+
+# Exercise: Retrieve 4 Zika Virus genomes and concatenate them into a multifasta file.
+query = '"Zika virus"[Organism] AND (("9000"[SLEN] : "20000"[SLEN]) AND ("2017/03/20"[PDAT] : "2017/03/24"[PDAT])) '
+accessions = NCBI.search(query, retmax=4)
+input_files = expand("{acc}.fasta", acc=accessions)
+
+rule concatenate_fasta:
+    input:
+        NCBI.remote(input_files, db="nuccore")
+    output:
+        "zika_virus_multifasta.fasta"
+    shell:
+        "cat {input} > {output}"

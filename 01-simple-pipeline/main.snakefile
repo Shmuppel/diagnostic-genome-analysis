@@ -1,7 +1,7 @@
 workdir: "/Users/Shmuppel/Bio-Informatics/data-processing-snakemake/01-simple-pipeline"
 configfile: "config.yaml"
 include: "bwa_map.snakefile"
-include: "samtools_sort.snakefile"
+include: "samtpols_sort.snakefile"
 include: "samtools_index.snakefile"
 include: "bcftools_call.snakefile"
 include: "report.snakefile"
