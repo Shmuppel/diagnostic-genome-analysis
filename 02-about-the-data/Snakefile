@@ -2,8 +2,6 @@ import os
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 from snakemake.remote.NCBI import RemoteProvider as NCBIRemoteProvider
 
-configfile: "config.yaml"
-
 HTTP = HTTPRemoteProvider()
 NCBI = NCBIRemoteProvider(email="n.s.van.der.vegt@st.hanze.nl")
 

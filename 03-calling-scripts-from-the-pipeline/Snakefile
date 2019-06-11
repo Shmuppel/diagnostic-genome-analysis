@@ -1,0 +1,7 @@
+rule generate_gene_expression_heatmap:
+    input:
+        "data/gene_ex.csv"
+    output:
+        "heatmap.png"
+    shell:
+         "Rscript heatmap.R {input} {output}"
