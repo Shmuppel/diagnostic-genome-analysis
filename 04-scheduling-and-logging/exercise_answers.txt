@@ -1,0 +1,4 @@
+In terms of threads, cores in sockets:
+    Bin 201 has 4 CPUs, 1 thread per core / 4 cores per socket, 1 socket.
+    Bin 201 has 4 CPUs, 2 thread per core / 2 cores per socket, 1 socket.
+    Bin 205 (computer currently being used) has 4 threads.
