@@ -2,7 +2,7 @@
 Diagnostic Genome Analysis - Pipeline
 
 Preperation:
-    -Retrieving a remote genome
+    -Retrieving remote genomes, samples, and the cardiopanel if not provided
 	-BWA Index
 
 Pipeline:
@@ -16,24 +16,60 @@ Pipeline:
 
 configfile: "config.yaml"
 
-from snakemake.remote import FTP
-FTP = FTP.RemoteProvider()
+import os
+from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
+HTTP = HTTPRemoteProvider()
 
 # PREPERATION RULES.
 rule get_remote_genome:
     """
-    Retrieves a reference genome through FTP transfer.
+    Retrieves a reference genome through HTTP transfer.
 
-    Input: FTP RemoteProvider object with remote path to reference genome (taken from config["remote_genome_path"]
+    Input: HTTP RemoteProvider object with remote path to reference genome (taken from config["remote_genome_path"]
 
     Output: Reference genome in Fasta format.
     """
     input:
-        FTP.remote(config["remote_genome_path"], static=True, keep_local=True)
+        HTTP.remote(config["remote_genome_path"], static=True, keep_local=True)
     output:
         config["genome"]
     run:
         outputPath = config["genome"]
+        shell("mv {input} {outputPath}")
+
+rule get_remote_samples:
+    """
+    Retrieves samples through HTTP transfer.
+
+    Input: HTTP RemoteProvider object with remote path to reference sample(s) (taken from config["remote_sample_path"]
+
+    Output: Sample reads in Fasta format.
+    """
+    input:
+        expand(HTTP.remote(expand("{sample}", sample=config["remote_sample_paths"].values()), static=True, keep_local=True))
+    output:
+        expand("{sample}", sample = config["samples"].values())
+    run:
+        for i, file in enumerate(output):
+            file_name = os.path.basename(file)
+            output_path = os.path.dirname(file)
+            shell("mv " + input[i] + " " + file_name)
+            shell("mv " + file_name + " " + output_path)
+
+rule get_remote_cardiopanel:
+    """
+    Retrieves cardiopanel through HTTP transfer.
+
+    Input: HTTP RemoteProvider object with remote path to cardiopanel (taken from config["remote_cardiopanel_path"]
+
+    Output: Cardiopanel in BED format (.txt file format).
+    """
+    input:
+        expand(HTTP.remote(config["remote_cardiopanel_path"], static=True, keep_local=True))
+    output:
+        config["cardiopanel"]
+    run:
+        outputPath = config["cardiopanel"]
         shell("mv {input} {outputPath}")
 
 rule bwa_index:
@@ -54,9 +90,9 @@ rule bwa_index:
 	input:
 		config["genome"]
 	output:
-		expand("data/reference/{genome}.{ext}", 
-			genome=config["genome"],
-			ext=["amb","ann","bwt","pac","sa"])
+		expand("{genome}.{ext}",
+		    genome=config["genome"],
+		    ext=["amb","ann","bwt","pac","sa"])
 	shell:
 		"bwa index -a bwtsw {input}"
 

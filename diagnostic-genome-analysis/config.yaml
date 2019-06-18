@@ -1,5 +1,12 @@
-remote_genome_path: ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
+# Optional if own genome/samples provided.
+remote_genome_path: https://galaxy.bioinf.nl/datasets/a06c4ae666b2cd6a/display?to_ext=fasta
+remote_cardiopanel_path: https://galaxy.bioinf.nl/datasets/4e9f19de9b4539a0/display?to_ext=bed
+remote_sample_paths:
+  S1R1: https://galaxy.bioinf.nl/datasets/cc8ab8368e7a0895/display?to_ext=fastqsanger.gz
+  S1R2: https://galaxy.bioinf.nl/datasets/1e4591912a699909/display?to_ext=fastqsanger.gz
+
 genome: data/reference/human_g1k_v37.fasta
+cardiopanel: data/reference/cardiopanel/cardiopanel.txt
 samples:
-  A: data/samples/sample1_L001_R1_001"
-  B: data/samples/sample1_L001_R2_001
+  S1R1: data/samples/Sample1_0394321_L001_R1_001.fastq
+  S1R2: data/samples/Sample1_0394321_L001_R2_001.fastq
