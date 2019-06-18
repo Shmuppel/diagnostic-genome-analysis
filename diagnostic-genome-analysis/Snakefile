@@ -30,7 +30,7 @@ rule get_remote_genome:
     Output: Reference genome in Fasta format.
     """
     input:
-        HTTP.remote(config["remote_genome_path"], static=True, keep_local=True)
+        HTTP.remote(config["remote_genome_path"], keep_local=True)
     output:
         config["genome"]
     run:
@@ -46,7 +46,7 @@ rule get_remote_samples:
     Output: Sample reads in Fasta format.
     """
     input:
-        expand(HTTP.remote(expand("{sample}", sample=config["remote_sample_paths"].values()), static=True, keep_local=True))
+        expand(HTTP.remote(expand("{sample}", sample=config["remote_sample_paths"].values()), keep_local=True))
     output:
         expand("{sample}", sample = config["samples"].values())
     run:
@@ -65,7 +65,7 @@ rule get_remote_cardiopanel:
     Output: Cardiopanel in BED format (.txt file format).
     """
     input:
-        expand(HTTP.remote(config["remote_cardiopanel_path"], static=True, keep_local=True))
+        expand(HTTP.remote(config["remote_cardiopanel_path"], keep_local=True))
     output:
         config["cardiopanel"]
     run:
