@@ -1,5 +1,5 @@
-genome: data/genome.fa
+genome: /homes/nsvandervegt/data-processing-snakemake/data/genome.fa
 samples:
-  A: data/samples/A.fastq
-  B: data/samples/B.fastq
-  C: data/samples/C.fastq
+  A: /homes/nsvandervegt/data-processing-snakemake/data/samples/A.fastq
+  B: /homes/nsvandervegt/data-processing-snakemake/data/samples/B.fastq
+  C: /homes/nsvandervegt/data-processing-snakemake/data/samples/C.fastq

@@ -1,0 +1,208 @@
+"""
+Diagnostic Genome Analysis - Pipeline
+
+Preperation:
+    -Retrieving a remote genome
+	-BWA Index
+
+Pipeline:
+	-FastQC
+	-Trimmomatic
+	-BWA MEM Mapping
+	-Markduplicates
+	-MpileUp
+	-Varscan 2
+"""
+
+configfile: "config.yaml"
+
+from snakemake.remote import FTP
+FTP = FTP.RemoteProvider()
+
+# PREPERATION RULES.
+rule get_remote_genome:
+    """
+    Retrieves a reference genome through FTP transfer.
+
+    Input: FTP RemoteProvider object with remote path to reference genome (taken from config["remote_genome_path"]
+
+    Output: Reference genome in Fasta format.
+    """
+    input:
+        FTP.remote(config["remote_genome_path"], static=True, keep_local=True)
+    output:
+        config["genome"]
+    run:
+        outputPath = config["genome"]
+        shell("mv {input} {outputPath}")
+
+rule bwa_index:
+	"""
+	Index database sequences in the FASTA format.
+	
+	Input: Reference Genome (FASTA Format).
+	
+	Output: A handfull of files, some in binary, that are used for
+			indexing the reference genome. 
+	
+	Shell: bwa index -a <algorithm for constructing BWT index>
+		   <reference genome>
+	
+	Reference & further info: 
+		http://bio-bwa.sourceforge.net/bwa.shtml
+	"""
+	input:
+		config["genome"]
+	output:
+		expand("data/reference/{genome}.{ext}", 
+			genome=config["genome"],
+			ext=["amb","ann","bwt","pac","sa"])
+	shell:
+		"bwa index -a bwtsw {input}"
+
+
+# PIPELINE RULES.
+rule fastqc:
+	"""
+	Perform FastQC Analysis on a sample.
+	
+	Input:  Single End Fastq sample(s).
+	
+	Output: Analysis of samples, summarized in an HTML file. 
+			Additionaly an archieve of all graphs and figures is constructed.
+
+	Shell: fastqc <input file(s)> --outdir <output directory>
+
+	Reference & further info:
+		https://www.bioinformatics.babraham.ac.uk/projects/fastqc/INSTALL.txt
+	"""
+	input:
+		expand("data/patient/{sample}.fastq", sample=config["samples"])
+	output:
+		expand("fastqc/{sample}_fastqc.html", sample=config["samples"])
+	shell:
+		"fastqc {input} --outdir=./FastQC/"
+
+rule trimmomatic:
+	""" 
+	Trims Data.
+	
+	Input:  Two fastaQ files. Trimmomatic is set to use paired end trimming
+			both forward and reverse reads are expected to be present.
+			
+	Output: Trimmed sequence data. Reads that did not make the cut have been moved to
+			unpaired archieves (1U and 2U).
+
+	Shell: java -jar <path to trimmomatic.jar>
+		PE (Paired End) -basein <input file> -baseout <output file>
+
+		Processing Steps:
+		ILLUMINACLIP - Removes Illumina Adapters
+			<fasta with illumina adapters>:
+			<seed mismatches>:
+			<palindrome clip treshold>:
+			<simple clip treshold>
+
+		SLIDINGWINDOW - Performs a sliding window trimming.
+			<number of bases to average across>:
+			<average quality required>
+
+		MINLEN - Removes reads that fall below a given length.
+			<minimum length of reads to be kept>
+
+	Reference & further info: 
+		http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
+	"""
+	input:
+		expand("data/patient/{sample}.fastq", sample = config["samples"])
+	output:
+		expand("trimmed_samples/{sample}_{replicate}.fq.gz", 
+			   sample = config["samples"],
+			   replicate = ["P", "U"])
+	shell:
+		"java -jar tools/trimmomatic-0.32-1/jar/trimmomatic.jar "
+		"PE {input} {output} "
+		"ILLUMINACLIP:tools/trimmomatic-0.32-1/share/TruSeq3-PE.fa:2:30:10 "
+		"SLIDINGWINDOW:4:20 "
+		"MINLEN:70"
+
+rule bwa_mem:
+	"""
+	Performs local alignment of samples to a reference genome.
+	
+	input: Reference genome, indexed; samples that have undergone
+		   trimming.
+		   
+	output: One BAM file containing the mapped sample.
+	
+	shell: bwa mem -M (for picard compatibility) -p (paired end) <input samples> |
+		   samtools view -b (to export into BAM file) <output path>
+	
+	Reference & further info: 
+		http://bio-bwa.sourceforge.net/bwa.shtml
+	"""
+	input:
+		config["genome"],
+		expand("trimmed_samples/{sample}_P.fq.gz", sample=config["samples"])
+	output:
+		"mapped_reads/{sample}.bam"
+	threads: 8
+	shell:
+		"bwa mem -M -t {threads} -p {input} | samtools view -b > {output}"
+
+rule samtools_sort:
+	"""
+	Sorts alignments by leftmost coordinates.
+	
+	Input: BAM file to sort.
+	Output: Sorted BAM file.
+	
+	Shell: samtools sort -O bam (output format) <input BAM> 
+		   > <output directory> (move output into directory)
+	"""
+	input:
+		"mapped_reads/{sample}.bam"
+	output:
+		"sorted_reads/{sample}.bam"
+	shell:
+		"samtools sort -O bam {input} > {output}"
+
+rule mark_duplicates:
+	"""
+	Marks duplicates that may have arisen by PCR artifacts.
+	
+	Input: A sorted BAM file containing the mapped samples.
+	Output: A new BAM file, in which duplicates have been identified.
+			A metrics file indicating the numbers of duplicates.
+			
+	Shell: java -jar <path to picard.jar> Markduplicates
+		   I=<input BAM file> O=<output BAM file> M=<metrics file>
+		   ASSUME_SORTED=true (as BAM is sorted)
+	"""
+	input:
+		"sorted_reads/{sample}.bam"
+	output:
+		bam="marked_duplicates/marked_{sample}.bam",
+		metrics="marked_duplicates/marked_{sample}_metrics.txt"
+	shell:
+		"java -jar tools/picard/picard.jar "
+		"MarkDuplicates I={input} O={output.bam} M={output.metrics} "
+		"ASSUME_SORTED=true"
+		
+rule samtools_mpileup:
+	"""
+	Convert BAM file into a pileup format file.
+	
+	Input: BAM file to convert.
+	Output: Pileup file containing samples.
+	
+	Shell: samtools mpileup -f <reference genome> <file to convert>
+		   -o <output location>
+	"""
+	input:
+		fa=config["genome"],
+		bam="marked_duplicates/marked_{sample}.bam",
+	output:
+		"pileup/pileup_{sample}.pileup"
+	shell:
+		"samtools mpileup -f {input.fa} {input.bam} -o {output}"

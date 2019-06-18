@@ -1,0 +1,5 @@
+remote_genome_path: ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
+genome: data/reference/human_g1k_v37.fasta
+samples:
+  A: data/samples/sample1_L001_R1_001"
+  B: data/samples/sample1_L001_R2_001
