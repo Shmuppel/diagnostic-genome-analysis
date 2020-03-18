@@ -2,23 +2,42 @@
 Diagnostic Genome Analysis - Pipeline
 
 Preperation:
-    -Retrieving remote genomes, samples, and the cardiopanel if not provided
+    -Retrieving remote genome
 	-BWA Index
 
 Pipeline:
 	-FastQC
 	-Trimmomatic
-	-BWA MEM Mapping
+	-BWA MEM Mapping (paired end)
+	-Samtools Sort
 	-Markduplicates
 	-MpileUp
-	-Varscan 2
+	-VarScan 2
+	-Annovar
 """
 
 configfile: "config.yaml"
 
-import os
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 HTTP = HTTPRemoteProvider()
+
+# FUNCTIONS
+def get_sample_from_wildcard(wildcards):
+	"""
+	Retrieves the files associated from a sample stored in config.yaml.
+	Which sample/file to retrieve is based on the wildcard passed as an argument to this function
+	either manually or dynamically through 'input = get_sample_from_wildcard'.
+
+	This function (as does the whole pipeline) assumes 2 paired end reads files per sample are stored
+	with file name formatting: '{sample}_R1.fastq', ''{sample}_R2.fastq'.
+	"""
+	if wildcards.sample not in config['samples']:
+		pass
+
+	return expand(
+		f"{config['samples'][wildcards.sample]}_{{num}}.fastq",
+        num=["R1","R2"])
+
 
 # PREPERATION RULES.
 rule get_remote_genome:
@@ -76,7 +95,7 @@ rule bwa_index:
 	"""
 	Index database sequences in the FASTA format.
 	
-	Input: Reference Genome (FASTA Format).
+	Input: Reference Genome (FASTA Format or compressed FASTA).
 	
 	Output: A handfull of files, some in binary, that are used for
 			indexing the reference genome. 
@@ -91,13 +110,18 @@ rule bwa_index:
 		config["genome"]
 	output:
 		expand("{genome}.{ext}",
-		    genome=config["genome"],
-		    ext=["amb","ann","bwt","pac","sa"])
+			genome=config["genome"],
+			ext=["amb","ann","bwt","pac","sa"])
 	shell:
 		"bwa index -a bwtsw {input}"
 
 
 # PIPELINE RULES.
+rule report:
+	input:
+		expand("fastqc/{sample}_fastqc.html", sample=config["samples"]),
+		expand("vcf/{sample}.vcf", sample=config["samples"])
+
 rule fastqc:
 	"""
 	Perform FastQC Analysis on a sample.
@@ -113,11 +137,11 @@ rule fastqc:
 		https://www.bioinformatics.babraham.ac.uk/projects/fastqc/INSTALL.txt
 	"""
 	input:
-		expand("data/patient/{sample}.fastq", sample=config["samples"])
+		sample=get_sample_from_wildcard
 	output:
-		expand("fastqc/{sample}_fastqc.html", sample=config["samples"])
+		"fastqc/{sample}_fastqc.html"
 	shell:
-		"fastqc {input} --outdir=./FastQC/"
+		"cat {input} | fastqc --outdir=./fastqc stdin:{wildcards.sample}"
 
 rule trimmomatic:
 	""" 
@@ -126,7 +150,7 @@ rule trimmomatic:
 	Input:  Two fastaQ files. Trimmomatic is set to use paired end trimming
 			both forward and reverse reads are expected to be present.
 			
-	Output: Trimmed sequence data. Reads that did not make the cut have been moved to
+	Output: Trimmed sequence reads. Reads that did not make the cut have been moved to
 			unpaired archieves (1U and 2U).
 
 	Shell: java -jar <path to trimmomatic.jar>
@@ -150,10 +174,10 @@ rule trimmomatic:
 		http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
 	"""
 	input:
-		expand("data/patient/{sample}.fastq", sample = config["samples"])
+		sample=get_sample_from_wildcard
 	output:
-		expand("trimmed_samples/{sample}_{replicate}.fq.gz", 
-			   sample = config["samples"],
+		expand(["trimmed_samples/{{sample}}_R1_{replicate}.fq.gz",
+				"trimmed_samples/{{sample}}_R2_{replicate}.fq.gz"],
 			   replicate = ["P", "U"])
 	shell:
 		"java -jar tools/trimmomatic-0.32-1/jar/trimmomatic.jar "
@@ -171,7 +195,7 @@ rule bwa_mem:
 		   
 	output: One BAM file containing the mapped sample.
 	
-	shell: bwa mem -M (for picard compatibility) -p (paired end) <input samples> |
+	shell: bwa mem -M (for picard compatibility) <input genome and samples> |
 		   samtools view -b (to export into BAM file) <output path>
 	
 	Reference & further info: 
@@ -179,12 +203,13 @@ rule bwa_mem:
 	"""
 	input:
 		config["genome"],
-		expand("trimmed_samples/{sample}_P.fq.gz", sample=config["samples"])
+		"trimmed_samples/{sample}_R1_P.fq.gz",
+		"trimmed_samples/{sample}_R2_P.fq.gz"
 	output:
 		"mapped_reads/{sample}.bam"
 	threads: 8
 	shell:
-		"bwa mem -M -t {threads} -p {input} | samtools view -b > {output}"
+		"bwa mem -M -t {threads} {input} | samtools view -b > {output}"
 
 rule samtools_sort:
 	"""
@@ -229,7 +254,7 @@ rule samtools_mpileup:
 	"""
 	Convert BAM file into a pileup format file.
 	
-	Input: BAM file to convert.
+	Input: Reference genome and BAM file to convert.
 	Output: Pileup file containing samples.
 	
 	Shell: samtools mpileup -f <reference genome> <file to convert>
@@ -239,6 +264,28 @@ rule samtools_mpileup:
 		fa=config["genome"],
 		bam="marked_duplicates/marked_{sample}.bam",
 	output:
-		"pileup/pileup_{sample}.pileup"
+		mpileup="mpileup/mpileup_{sample}.mpileup"
 	shell:
-		"samtools mpileup -f {input.fa} {input.bam} -o {output}"
+		"samtools mpileup -f {input.fa} {input.bam} -o {output.mpileup}"
+
+rule varscan:
+	"""
+	Identifies SNPs of a mpileup file using VarScan 2.
+
+	Input: mpileup file to scan for variants.
+	Output: vcf file containing significant variants.
+
+	Shell: java -jar tools/varscan-v2.3.9/VarScan.jar
+		   mpileup2snp <mpileup file>
+		   --min-var-freq <minimum allelle frequency>
+		   --p-value <p-value treshold>
+		   --output-vcf <output to vcf 0/1>"
+	"""
+	input:
+		mpileup="mpileup/mpileup_{sample}.mpileup"
+	output:
+		vcf="vcf/{sample}.vcf"
+	shell:
+		"java -jar tools/varscan-v2.3.9/VarScan.jar "
+		"mpileup2snp {input.mpileup} --min-var-freq 0.3 --p-value 0.05 "
+		"--output-vcf 1 > {output.vcf}"

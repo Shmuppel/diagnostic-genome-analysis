@@ -5,8 +5,8 @@ remote_sample_paths:
   S1R1: https://galaxy.bioinf.nl/datasets/cc8ab8368e7a0895/display?to_ext=fastqsanger.gz
   S1R2: https://galaxy.bioinf.nl/datasets/1e4591912a699909/display?to_ext=fastqsanger.gz
 
-genome: data/reference/human_g1k_v37.fasta
-cardiopanel: data/reference/cardiopanel/cardiopanel.txt
+# Local genome/samples.
+genome: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/reference/genome_hg19.fa
 samples:
-  S1R1: data/samples/Sample1_0394321_L001_R1_001.fastq
-  S1R2: data/samples/Sample1_0394321_L001_R2_001.fastq
+  A: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001
+  B: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001
