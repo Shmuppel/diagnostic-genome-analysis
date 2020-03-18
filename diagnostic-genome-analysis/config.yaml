@@ -1,12 +1,13 @@
-# Optional if own genome/samples provided.
-remote_genome_path: https://galaxy.bioinf.nl/datasets/a06c4ae666b2cd6a/display?to_ext=fasta
-remote_cardiopanel_path: https://galaxy.bioinf.nl/datasets/4e9f19de9b4539a0/display?to_ext=bed
-remote_sample_paths:
-  S1R1: https://galaxy.bioinf.nl/datasets/cc8ab8368e7a0895/display?to_ext=fastqsanger.gz
-  S1R2: https://galaxy.bioinf.nl/datasets/1e4591912a699909/display?to_ext=fastqsanger.gz
+# Only if own genome not provided, currently not possible as galaxy.bioinf.nl datasets are offline.
+# remote_genome_path: https://galaxy.bioinf.nl/datasets/a06c4ae666b2cd6a/display?to_ext=fasta
 
 # Local genome/samples.
 genome: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/reference/genome_hg19.fa
+humandb: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/humandb/
 samples:
   A: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001
-  B: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001
+
+trimmomatic_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/trimmomatic-0.32-1/jar/trimmomatic.jar
+picard_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/picard/picard.jar
+varscan_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/varscan-v2.3.9/VarScan.jar
+annovar_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/annovar/

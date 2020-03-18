@@ -1,14 +1,14 @@
 """
-Diagnostic Genome Analysis - Pipeline
+Diagnostic Genome Analysis - Snakemake Pipeline
 
 Preperation:
-    -Retrieving remote genome
+    -Retrieving remote genome (code provided, but currently offline)
 	-BWA Index
 
-Pipeline:
+Pipeline tools:
 	-FastQC
 	-Trimmomatic
-	-BWA MEM Mapping (paired end)
+	-BWA MEM Mapping
 	-Samtools Sort
 	-Markduplicates
 	-MpileUp
@@ -19,6 +19,7 @@ Pipeline:
 configfile: "config.yaml"
 
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
+import sys
 HTTP = HTTPRemoteProvider()
 
 # FUNCTIONS
@@ -31,65 +32,28 @@ def get_sample_from_wildcard(wildcards):
 	This function (as does the whole pipeline) assumes 2 paired end reads files per sample are stored
 	with file name formatting: '{sample}_R1.fastq', ''{sample}_R2.fastq'.
 	"""
-	if wildcards.sample not in config['samples']:
-		pass
-
 	return expand(
 		f"{config['samples'][wildcards.sample]}_{{num}}.fastq",
         num=["R1","R2"])
 
 
 # PREPERATION RULES.
-rule get_remote_genome:
-    """
-    Retrieves a reference genome through HTTP transfer.
-
-    Input: HTTP RemoteProvider object with remote path to reference genome (taken from config["remote_genome_path"]
-
-    Output: Reference genome in Fasta format.
-    """
-    input:
-        HTTP.remote(config["remote_genome_path"], keep_local=True)
-    output:
-        config["genome"]
-    run:
-        outputPath = config["genome"]
-        shell("mv {input} {outputPath}")
-
-rule get_remote_samples:
-    """
-    Retrieves samples through HTTP transfer.
-
-    Input: HTTP RemoteProvider object with remote path to reference sample(s) (taken from config["remote_sample_path"]
-
-    Output: Sample reads in Fasta format.
-    """
-    input:
-        expand(HTTP.remote(expand("{sample}", sample=config["remote_sample_paths"].values()), keep_local=True))
-    output:
-        expand("{sample}", sample = config["samples"].values())
-    run:
-        for i, file in enumerate(output):
-            file_name = os.path.basename(file)
-            output_path = os.path.dirname(file)
-            shell("mv " + input[i] + " " + file_name)
-            shell("mv " + file_name + " " + output_path)
-
-rule get_remote_cardiopanel:
-    """
-    Retrieves cardiopanel through HTTP transfer.
-
-    Input: HTTP RemoteProvider object with remote path to cardiopanel (taken from config["remote_cardiopanel_path"]
-
-    Output: Cardiopanel in BED format (.txt file format).
-    """
-    input:
-        expand(HTTP.remote(config["remote_cardiopanel_path"], keep_local=True))
-    output:
-        config["cardiopanel"]
-    run:
-        outputPath = config["cardiopanel"]
-        shell("mv {input} {outputPath}")
+# Remote genome currently not possible as galaxy.bioinf.nl shared datasets are offline.
+# rule get_remote_genome:
+#     """
+#     Retrieves a reference genome through HTTP transfer.
+#
+#     Input: HTTP RemoteProvider object with remote path to reference genome (taken from config["remote_genome_path"]
+#
+#     Output: Reference genome in Fasta format.
+#     """
+#     input:
+#         HTTP.remote(config["remote_genome_path"], keep_local=True)
+#     output:
+#         config["genome"]
+#     run:
+#         outputPath = config["genome"]
+#         shell("mv {input} {outputPath}")
 
 rule bwa_index:
 	"""
@@ -105,6 +69,9 @@ rule bwa_index:
 	
 	Reference & further info: 
 		http://bio-bwa.sourceforge.net/bwa.shtml
+
+	Citation: Li H. (2013) Aligning sequence reads, clone sequences and
+		assembly contigs with BWA-MEM. arXiv:1303.3997v1 [q-bio.GN].
 	"""
 	input:
 		config["genome"]
@@ -120,7 +87,7 @@ rule bwa_index:
 rule report:
 	input:
 		expand("fastqc/{sample}_fastqc.html", sample=config["samples"]),
-		expand("vcf/{sample}.vcf", sample=config["samples"])
+		expand("annovar/{sample}.hg19_multianno.txt", sample=config["samples"])
 
 rule fastqc:
 	"""
@@ -131,10 +98,13 @@ rule fastqc:
 	Output: Analysis of samples, summarized in an HTML file. 
 			Additionaly an archieve of all graphs and figures is constructed.
 
-	Shell: fastqc <input file(s)> --outdir <output directory>
+	Shell: "cat {input} | fastqc --outdir=./fastqc stdin:<file name to stream data into>"
 
 	Reference & further info:
 		https://www.bioinformatics.babraham.ac.uk/projects/fastqc/INSTALL.txt
+
+	Citation: Andrews S. (2010). FastQC: a quality control tool for high throughput sequence data.
+		Available online at: http://www.bioinformatics.babraham.ac.uk/projects/fastqc
 	"""
 	input:
 		sample=get_sample_from_wildcard
@@ -145,7 +115,7 @@ rule fastqc:
 
 rule trimmomatic:
 	""" 
-	Trims Data.
+	Trims reads, removes ILLUMINACLIP artifacts, and removes low length reads.
 	
 	Input:  Two fastaQ files. Trimmomatic is set to use paired end trimming
 			both forward and reverse reads are expected to be present.
@@ -172,16 +142,20 @@ rule trimmomatic:
 
 	Reference & further info: 
 		http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
+
+	Citation: Citations. Bolger, A. M., Lohse, M., & Usadel, B. (2014).
+		Trimmomatic: A flexible trimmer for Illumina Sequence Data.
 	"""
 	input:
+		tool=config["trimmomatic_tool"],
 		sample=get_sample_from_wildcard
 	output:
 		expand(["trimmed_samples/{{sample}}_R1_{replicate}.fq.gz",
 				"trimmed_samples/{{sample}}_R2_{replicate}.fq.gz"],
 			   replicate = ["P", "U"])
 	shell:
-		"java -jar tools/trimmomatic-0.32-1/jar/trimmomatic.jar "
-		"PE {input} {output} "
+		"java -jar {input.tool} "
+		"PE {input.sample} {output} "
 		"ILLUMINACLIP:tools/trimmomatic-0.32-1/share/TruSeq3-PE.fa:2:30:10 "
 		"SLIDINGWINDOW:4:20 "
 		"MINLEN:70"
@@ -190,16 +164,19 @@ rule bwa_mem:
 	"""
 	Performs local alignment of samples to a reference genome.
 	
-	input: Reference genome, indexed; samples that have undergone
+	Input: Reference genome, indexed; samples that have undergone
 		   trimming.
 		   
-	output: One BAM file containing the mapped sample.
+	Output: One BAM file containing the mapped sample.
 	
-	shell: bwa mem -M (for picard compatibility) <input genome and samples> |
+	Shell: bwa mem -M (for picard compatibility) <input genome and samples> |
 		   samtools view -b (to export into BAM file) <output path>
 	
 	Reference & further info: 
 		http://bio-bwa.sourceforge.net/bwa.shtml
+
+	Citation: Li H. (2013) Aligning sequence reads, clone sequences and
+		assembly contigs with BWA-MEM. arXiv:1303.3997v1 [q-bio.GN].
 	"""
 	input:
 		config["genome"],
@@ -216,10 +193,15 @@ rule samtools_sort:
 	Sorts alignments by leftmost coordinates.
 	
 	Input: BAM file to sort.
+
 	Output: Sorted BAM file.
 	
 	Shell: samtools sort -O bam (output format) <input BAM> 
 		   > <output directory> (move output into directory)
+
+	Citation: Li H.*, Handsaker B.*, Wysoker A., Fennell T., Ruan J., Homer N.,
+		Marth G., Abecasis G., Durbin R. and 1000 Genome Project Data Processing Subgroup (2009)
+		The Sequence alignment/map (SAM) format and SAMtools. Bioinformatics, 25, 2078-9. [PMID: 19505943]
 	"""
 	input:
 		"mapped_reads/{sample}.bam"
@@ -233,21 +215,26 @@ rule mark_duplicates:
 	Marks duplicates that may have arisen by PCR artifacts.
 	
 	Input: A sorted BAM file containing the mapped samples.
+
 	Output: A new BAM file, in which duplicates have been identified.
 			A metrics file indicating the numbers of duplicates.
 			
 	Shell: java -jar <path to picard.jar> Markduplicates
 		   I=<input BAM file> O=<output BAM file> M=<metrics file>
-		   ASSUME_SORTED=true (as BAM is sorted)
+		   ASSUME_SORTED=true (as BAM is sorted by samtools)
+
+	Citation: “Picard Toolkit.” 2019. Broad Institute, GitHub Repository.
+		http://broadinstitute.github.io/picard/; Broad Institute
 	"""
 	input:
-		"sorted_reads/{sample}.bam"
+		tool=config["picard_tool"],
+		sample="sorted_reads/{sample}.bam"
 	output:
 		bam="marked_duplicates/marked_{sample}.bam",
 		metrics="marked_duplicates/marked_{sample}_metrics.txt"
 	shell:
-		"java -jar tools/picard/picard.jar "
-		"MarkDuplicates I={input} O={output.bam} M={output.metrics} "
+		"java -jar {input.tool} "
+		"MarkDuplicates I={input.sample} O={output.bam} M={output.metrics} "
 		"ASSUME_SORTED=true"
 		
 rule samtools_mpileup:
@@ -255,37 +242,84 @@ rule samtools_mpileup:
 	Convert BAM file into a pileup format file.
 	
 	Input: Reference genome and BAM file to convert.
+
 	Output: Pileup file containing samples.
 	
-	Shell: samtools mpileup -f <reference genome> <file to convert>
-		   -o <output location>
+	Shell: samtools mpileup -f <reference genome> <file to convert> -o <output location>
+
+	Citation: Li H.*, Handsaker B.*, Wysoker A., Fennell T., Ruan J., Homer N.,
+		Marth G., Abecasis G., Durbin R. and 1000 Genome Project Data Processing Subgroup (2009)
+		The Sequence alignment/map (SAM) format and SAMtools. Bioinformatics, 25, 2078-9. [PMID: 19505943]
 	"""
 	input:
-		fa=config["genome"],
+		reference_genome=config["genome"],
 		bam="marked_duplicates/marked_{sample}.bam",
 	output:
 		mpileup="mpileup/mpileup_{sample}.mpileup"
 	shell:
-		"samtools mpileup -f {input.fa} {input.bam} -o {output.mpileup}"
+		"samtools mpileup -f {input.reference_genome} {input.bam} -o {output.mpileup}"
 
 rule varscan:
 	"""
 	Identifies SNPs of a mpileup file using VarScan 2.
 
 	Input: mpileup file to scan for variants.
-	Output: vcf file containing significant variants.
+
+	Output: vcf file containing filtered variants.
 
 	Shell: java -jar tools/varscan-v2.3.9/VarScan.jar
 		   mpileup2snp <mpileup file>
 		   --min-var-freq <minimum allelle frequency>
 		   --p-value <p-value treshold>
-		   --output-vcf <output to vcf 0/1>"
+		   --output-vcf <output to vcf 0/1>
+
+	Citation: Koboldt, D. C. and Zhang, Q. and Larson, D. E. and Shen, D. and McLellan,
+		M. D. and Lin, L. and Miller, C. A. and Mardis, E. R. and Ding, L. and Wilson, R. K. (2012).
+		VarScan 2: Somatic mutation and copy number alteration discovery in cancer by exome sequencing.
+		In Genome Research, 22 (3), pp. 568–576.
 	"""
 	input:
+		tool=config["varscan_tool"],
 		mpileup="mpileup/mpileup_{sample}.mpileup"
 	output:
-		vcf="vcf/{sample}.vcf"
+		vcf="vcf/vcf_{sample}.vcf"
 	shell:
-		"java -jar tools/varscan-v2.3.9/VarScan.jar "
-		"mpileup2snp {input.mpileup} --min-var-freq 0.3 --p-value 0.05 "
+		"java -jar {input.tool} "
+		"mpileup2snp {input.mpileup} --min-var-freq 0.3 --p-value 0.99 "
 		"--output-vcf 1 > {output.vcf}"
+
+rule annovar:
+	"""
+	Input: vcf file containing filtered variants.
+
+	Output:
+
+	Shell: -remove <remove temp files>
+		   -nastring <fill fields without annotiation>
+
+	Citation: Wang K, Li M, Hakonarson H. ANNOVAR: Functional annotation of genetic
+		variants from next-generation sequencing data, Nucleic Acids Research,
+		38:e164, 2010
+	"""
+	input:
+		tool=config["annovar_tool"],
+		humandb=config["humandb"],
+		vcf="vcf/vcf_A.vcf"
+	output:
+		"annovar/{sample}.hg19_multianno.txt",
+		"annovar/{sample}.hg19_multianno.vcf"
+	run:
+		# Download the appropiate databases
+		shell("{input.tool}annotate_variation.pl -buildver hg19 -downdb -webfrom annovar refGene {input.humandb} ")
+		shell("{input.tool}annotate_variation.pl -buildver hg19 -downdb -webfrom annovar exac03 {input.humandb} ")
+		shell("{input.tool}annotate_variation.pl -buildver hg19 -downdb -webfrom annovar avsnp138 {input.humandb} ")
+		shell("{input.tool}annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb26_all {input.humandb} ")
+		shell("{input.tool}annotate_variation.pl -buildver hg19 -downdb -webfrom annovar 1000g2014oct {input.humandb} ")
+		shell("{input.tool}annotate_variation.pl -buildver hg19 -downdb -webfrom annovar clinvar_20190305 {input.humandb} ")
+		# Perform table.annover.pl
+		shell("{input.tool}table_annovar.pl -vcfinput {input.vcf} -out annovar/{wildcards.sample} -buildver hg19 {input.humandb} "
+			  "-polish -remove "
+			  "-protocol refGene,exac03,avsnp138,ljb26_all,ALL.sites.2014_10,clinvar_20190305 "
+			  "-operation g,f,f,f,f,f ")
+		# Clean up databases
+		# shell("rm {input.humandb}*")
