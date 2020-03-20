@@ -17,7 +17,9 @@ Pipeline tools:
 """
 
 configfile: "config.yaml"
+
 #include: "rules/preperation/get_remote_genome.snakefile"
+include: "rules/preperation/get_remote_annovar_dbs.snakefile"
 include: "rules/preperation/bwa_index.snakefile"
 include: "rules/fastqc.snakefile"
 include: "rules/trimmomatic.snakefile"
@@ -32,4 +34,4 @@ include: "rules/annovar.snakefile"
 rule report:
 	input:
 		expand("fastqc/{sample}_fastqc.html", sample=config["samples"]),
-		expand("annovar/{sample}.hg19_multianno.txt", sample=config["samples"])
+		expand("annovar/{sample}." + config["genome_build"] + "_multianno.txt", sample=config["samples"])

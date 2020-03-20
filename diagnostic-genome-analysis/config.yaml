@@ -1,13 +1,38 @@
-# Only if own genome not provided, currently not possible as galaxy.bioinf.nl datasets are offline.
-# remote_genome_path: https://galaxy.bioinf.nl/datasets/a06c4ae666b2cd6a/display?to_ext=fasta
+# REMOTE GENOME
+# > Only advised if own genome not provided, currently not possible as galaxy.bioinf.nl datasets are offline.
+# > remote_genome_path: https://galaxy.bioinf.nl/datasets/a06c4ae666b2cd6a/display?to_ext=fasta
 
-# Local genome/samples.
+# LOCAL REFERENCE GENOME / SAMPLES PATHS
 genome: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/reference/genome_hg19.fa
-humandb: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/humandb/
+genome_build: hg19
 samples:
   A: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001
 
+# LOCAL TOOL PATHS
 trimmomatic_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/trimmomatic-0.32-1/jar/trimmomatic.jar
 picard_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/picard/picard.jar
 varscan_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/varscan-v2.3.9/VarScan.jar
 annovar_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/annovar/
+
+# ANNOVAR DATABASES
+#   Most of the time the file corresponding to the database will be "database.txt", however some databases
+# (e.g. human genome project) download multiple files, when this is the case the file will have to be
+# specified.
+#   Operations refer to how the database should be used, e.g. gene based (g) or filter based (f).
+annovar_db_storage: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/
+annovar_dbs:
+  refGene:
+    file: refGene.txt
+    operation: g
+  exac03:
+    file: exac03.txt
+    operation: f
+  avsnp138:
+    file: avsnp138.txt
+    operation: f
+  ljb26_all:
+    file: ljb26_all.txt
+    operation: f
+  clinvar_20190305:
+    file: clinvar_20190305.txt
+    operation: f
