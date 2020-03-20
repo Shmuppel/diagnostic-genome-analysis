@@ -1,11 +1,12 @@
 def get_sample_from_wildcard(wildcards):
     """
-    Retrieves the files associated from a sample stored in config.yaml.
-    Which sample/file to retrieve is based on the wildcard passed as an argument to this function
-    either manually or dynamically through 'input = get_sample_from_wildcard'.
+    Retrieves the files associated with a sample stored in config.yaml.
 
-    This function (as does the whole pipeline) assumes 2 paired end reads files per sample are stored
-    with file name formatting: '{sample}_R1.fastq', ''{sample}_R2.fastq'.
+    Which sample/file to retrieve is based on the wildcard passed as an argument
+    to this function dynamically through 'input = get_sample_from_wildcard'.
+
+    Assumes 2 paired end reads files per sample are stored with file name formatting:
+    '{sample}_R1.fastq', ''{sample}_R2.fastq'.
     """
     return expand(
         f"{config['samples'][wildcards.sample]}_{{num}}.fastq",
@@ -15,33 +16,36 @@ rule trimmomatic:
     """ 
     Trims reads, removes ILLUMINACLIP artifacts, and removes low length reads.
 
-    Input:  Two fastaQ files. Trimmomatic is set to use paired end trimming
+    Input: 
+        Two FASTAQ files. Trimmomatic is set to use paired end trimming
         both forward and reverse reads are expected to be present.
 
-    Output: Trimmed sequence reads. Reads that did not make the cut have been moved to
-        unpaired archieves (1U and 2U).
-
-    Shell: java -jar <path to trimmomatic.jar>
-        PE (Paired End) -basein <input file> -baseout <output file>
+    Output: 
+        Trimmed sequence reads. Reads that did not make the cut have been 
+        moved to unpaired archieves (1U and 2U).
     
-    Processing Steps:
-        ILLUMINACLIP - Removes Illumina Adapters
+    Shell clarification:
+        java -jar <path to trimmomatic.jar>
+        PE (paired end) <input file> <output file path>
+        
+        ILLUMINACLIP (removes Illumina adapters)
             <fasta with illumina adapters>:
             <seed mismatches>:
             <palindrome clip treshold>:
             <simple clip treshold>
 
-        SLIDINGWINDOW - Performs a sliding window trimming.
+        SLIDINGWINDOW (performs a sliding window trimming)
             <number of bases to average across>:
             <average quality required>
 
-        MINLEN - Removes reads that fall below a given length.
+        MINLEN (removes reads that fall below a given length)
             <minimum length of reads to be kept>
 
     Reference & further info: 
         http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
 
-    Citation: Citations. Bolger, A. M., Lohse, M., & Usadel, B. (2014).
+    Citation:
+        Bolger, A. M., Lohse, M., & Usadel, B. (2014). 
         Trimmomatic: A flexible trimmer for Illumina Sequence Data.
     """
     input:

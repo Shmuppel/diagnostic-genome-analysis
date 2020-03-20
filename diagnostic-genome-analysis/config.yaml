@@ -15,7 +15,7 @@ varscan_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools
 annovar_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/annovar/
 
 # ANNOVAR DATABASES
-#   Most of the time the file corresponding to the database will be "database.txt", however some databases
+#   Most of the time the file corresponding to the database will be "databaseX.txt", however some databases
 # (e.g. human genome project) download multiple files, when this is the case the file will have to be
 # specified.
 #   Operations refer to how the database should be used, e.g. gene based (g) or filter based (f).

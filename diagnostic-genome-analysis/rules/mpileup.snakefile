@@ -2,15 +2,20 @@ rule samtools_mpileup:
     """
     Convert BAM file into a pileup format file.
     
-    Input: Reference genome and BAM file to convert.
+    Input: 
+        Reference genome and BAM file to convert.
     
-    Output: Pileup file containing samples.
+    Output: 
+        Pileup file containing samples.
     
-    Shell: samtools mpileup -f <reference genome> <file to convert> -o <output location>
+    Shell clarification: 
+        samtools mpileup -f <reference genome> <input file> -o <output file path>
     
-    Citation: Li H.*, Handsaker B.*, Wysoker A., Fennell T., Ruan J., Homer N.,
-        Marth G., Abecasis G., Durbin R. and 1000 Genome Project Data Processing Subgroup (2009)
-        The Sequence alignment/map (SAM) format and SAMtools. Bioinformatics, 25, 2078-9. [PMID: 19505943]
+    Citation: 
+        Li H.*, Handsaker B.*, Wysoker A., Fennell T., Ruan J., Homer N., Marth G., 
+        Abecasis G., Durbin R. and 1000 Genome Project Data Processing Subgroup (2009)
+        The Sequence alignment/map (SAM) format and SAMtools. 
+        Bioinformatics, 25, 2078-9. [PMID: 19505943]
     """
     input:
         reference_genome = config["genome"],

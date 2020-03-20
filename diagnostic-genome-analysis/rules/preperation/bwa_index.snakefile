@@ -1,20 +1,23 @@
 rule bwa_index:
     """
-    Index database sequences in the FASTA format.
+    Index reference genome in the FASTA format.
 
-    Input: Reference Genome (FASTA Format or compressed FASTA).
+    Input: 
+        Reference Genome (FASTA Format or compressed FASTA).
 
-    Output: A handful of files, some in binary, that are used for
+    Output: 
+        Various files, some in binary, that are used for
         indexing the reference genome. 
 
-    Shell: bwa index -a <algorithm for constructing BWT index>
-        <reference genome>
+    Shell: 
+        bwa index -a <algorithm for constructing BWT index> <input file>
 
     Reference & further info: 
         http://bio-bwa.sourceforge.net/bwa.shtml
 
-    Citation: Li H. (2013) Aligning sequence reads, clone sequences and
-        assembly contigs with BWA-MEM. arXiv:1303.3997v1 [q-bio.GN].
+    Citation: 
+        Li H. (2013) Aligning sequence reads, clone sequences and assembly 
+        contigs with BWA-MEM. arXiv:1303.3997v1 [q-bio.GN].
     """
     input:
 	    config["genome"]

@@ -13,10 +13,18 @@ db_paths = get_annovar_db_paths()
 rule get_remote_annovar_dbs:
     """
     Downloads Annovar variant annotation databases. 
-    Databases that should be used should be added in config.yaml, so that they
-    may be downloaded dynamically. 
+    Databases that should be used are to be added in config.yaml, so that they
+    may be downloaded dynamically. Downloads are run in parallel using GNU parallel.
     
-    Makes the database downloads run in parallel using GNU parallel.
+    Output:
+        Database files as specified in config.yaml
+    
+    Run clarification: 
+        # Run for every Annovar database in config.yaml
+        <annovar tool path>annotate_variation.pl
+        -buildver <genome build version>
+        -downdb -webfrom annovar (download database) <database>
+        <annovar databases storage folder>
     """
     output: db_paths
     run:
@@ -28,4 +36,5 @@ rule get_remote_annovar_dbs:
                        " {config[annovar_db_storage]} ; "
 
         command += ") | parallel"
+
         shell(command)

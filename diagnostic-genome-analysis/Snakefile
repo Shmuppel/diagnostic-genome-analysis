@@ -3,6 +3,7 @@ Diagnostic Genome Analysis - Snakemake Pipeline
 
 Preperation:
     -Retrieving remote genome (code provided, but currently offline)
+    -Retrieving remote Annovar databases
 	-BWA Index
 
 Pipeline tools:
@@ -29,6 +30,7 @@ include: "rules/markduplicates.snakefile"
 include: "rules/mpileup.snakefile"
 include: "rules/varscan.snakefile"
 include: "rules/annovar.snakefile"
+
 
 # PIPELINE RULES.
 rule report:
