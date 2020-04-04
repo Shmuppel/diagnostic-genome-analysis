@@ -35,5 +35,5 @@ include: "rules/annovar.snakefile"
 # PIPELINE RULES.
 rule report:
 	input:
-		expand("fastqc/{sample}_fastqc.html", sample=config["samples"]),
+		expand("fastqc/{sample}_{num}_fastqc.html", sample=config["samples"], num=["R1", "R2"]),
 		expand("annovar/{sample}." + config["genome_build"] + "_multianno.txt", sample=config["samples"])

@@ -4,8 +4,8 @@ def get_sample_from_wildcard(wildcards):
     Which sample/file to retrieve is based on the wildcard passed as an argument to this function
     either manually or dynamically through 'input = get_sample_from_wildcard'.
 
-    This function (as does the whole pipeline) assumes 2 paired end reads files per sample are stored
-    with file name formatting: '{sample}_R1.fastq', ''{sample}_R2.fastq'.
+    This function (as does the whole pipeline) assumes 2 paired end reads files per sample are
+    stored with file name formatting: '{sample}_R1.fastq', ''{sample}_R2.fastq'.
     """
     return expand("{sample}_{num}.fastq",
                   num=["R1","R2"],
@@ -13,17 +13,27 @@ def get_sample_from_wildcard(wildcards):
 
 rule fastqc:
     """
-    Perform FastQC Analysis on a sample.
+    Perform FastQC Analysis on a sample's read files.
 
     Input: 
-        Single End FASTQ sample(s).
+        Single end read FASTQ files.
 
     Output: 
         Analysis of samples, summarized in an HTML file. 
         An archieve of all graphs and figures.
+        
+    Threads: 
+        2, this rule will issue two FastQC processes running in parallel, each analyzing 1 
+        single end read file. 
+        
+        FastQC natively supports multithreading, however that caused some complications
+        with Snakemake dependencies due to FastQC's multiple output files and their naming
+        convention. The current GNU parallel command isn't much different in practice, and
+        allows renaming of the output files into a more accessible naming convention. 
 
     Shell clarification: 
-        cat {input file} | fastqc --outdir=<output file directory> stdin:{output file path}
+        parallel -j {no. threads to use}
+        cat {input file} | fastqc --outdir=<output file directory> stdin:{sample name}_<read no.>
 
     Reference & further info:
         https://www.bioinformatics.babraham.ac.uk/projects/fastqc/INSTALL.txt
@@ -35,6 +45,8 @@ rule fastqc:
     input:
         sample = get_sample_from_wildcard
     output:
-        "fastqc/{sample}_fastqc.html"
+        expand("fastqc/{{sample}}_{num}_fastqc.html", num=["R1", "R2"])
+    threads: 2
     shell:
-        "cat {input} | fastqc --outdir=./fastqc stdin:{wildcards.sample}"
+        "parallel -j {threads} " \
+        "'cat {{1}} | fastqc --outdir=./fastqc stdin:{wildcards.sample}_R{{#}}' ::: {input} "

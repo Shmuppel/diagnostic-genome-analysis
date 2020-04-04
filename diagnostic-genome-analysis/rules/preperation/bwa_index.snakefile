@@ -25,7 +25,5 @@ rule bwa_index:
         expand("{genome}.{ext}",
                genome=config["genome"],
                ext=["amb", "ann", "bwt", "pac", "sa"])
-    benchmark:
-        "benchmarks/bwaindex_benchmark.txt"
     shell:
         "bwa index -a bwtsw {input}"
