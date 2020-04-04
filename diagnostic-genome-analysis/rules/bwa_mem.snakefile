@@ -21,11 +21,14 @@ rule bwa_mem:
         assembly contigs with BWA-MEM. arXiv:1303.3997v1 [q-bio.GN].
     """
     input:
-        config["genome"],
-        "trimmed_samples/{sample}_R1_P.fq.gz",
-        "trimmed_samples/{sample}_R2_P.fq.gz"
+        genome = config["genome"],
+        samples = expand("trimmed_samples/{{sample}}_{num}_P.fq.gz",
+                         num=["R1","R2"]),
+        index = expand("{genome}.{ext}",
+                       genome=config["genome"],
+                       ext=["amb", "ann", "bwt", "pac", "sa"])
     output:
         "mapped_reads/mapped_{sample}.bam"
     threads: 8
     shell:
-        "bwa mem -M -t {threads} {input} | samtools view -b > {output}"
+        "bwa mem -M -t {threads} {input.genome} {input.samples} | samtools view -b > {output}"

@@ -17,6 +17,7 @@ rule get_remote_genome:
         HTTP.remote(config["remote_genome_path"], keep_local=True)
     output:
         config["genome"]
+    group: "preperation"
     run:
         output_path = config["genome"]
         shell("mv {input} {output_path}")

@@ -12,7 +12,7 @@ def get_sample_from_wildcard(wildcards):
                   sample=config['samples'][wildcards.sample])
 
 rule trimmomatic:
-    """ 
+    """  
     Trims reads, removes ILLUMINACLIP artifacts, and removes low length reads.
 
     Input: 
