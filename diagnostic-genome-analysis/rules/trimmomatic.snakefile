@@ -59,10 +59,10 @@ rule trimmomatic:
         illumina_clip = config["illumina_clip"],
         sample = get_sample_from_wildcard
     output:
-        expand(["trimmed_samples/{{sample}}_R1_{replicate}.fq.gz",
-                "trimmed_samples/{{sample}}_R2_{replicate}.fq.gz"],
-                replicate=["P", "U"])
-    threads: 2
+        temp(expand("trimmed_samples/{{sample}}_{read}_{replicate}.fq.gz",
+                    read=["R1", "R2"],
+                    replicate=["P", "U"]))
+    threads: min(2, workflow.cores - config["reserve_annovar_db_thread"])
     shell:
         "java -jar {input.tool} "
         "PE -threads {threads} {input.sample} {output} "

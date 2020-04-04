@@ -46,7 +46,7 @@ rule fastqc:
         sample = get_sample_from_wildcard
     output:
         expand("results/fastqc/{{sample}}_{num}_fastqc.html", num=["R1", "R2"])
-    threads: 2
+    threads: min(2, workflow.cores - config["reserve_annovar_db_thread"])
     shell:
         "parallel -j {threads} " \
         "'cat {{1}} | fastqc --outdir=./results/fastqc stdin:{wildcards.sample}_R{{#}}' ::: {input} "

@@ -39,3 +39,6 @@ annovar_dbs:
   clinvar_20190305:
     file: clinvar_20190305.txt
     operation: f
+
+# MULTITHREADING
+reserve_annovar_db_thread: 0
