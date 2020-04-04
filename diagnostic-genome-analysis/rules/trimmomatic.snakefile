@@ -16,13 +16,20 @@ rule trimmomatic:
     Trims reads, removes ILLUMINACLIP artifacts, and removes low length reads.
 
     Input: 
-        Two FASTAQ files. Trimmomatic is set to use paired end trimming
-        both forward and reverse reads are expected to be present.
-
+        Two FASTAQ files. Trimmomatic is set to use paired end trimming both forward and reverse reads 
+        are expected to be present.
+        
     Output: 
-        Trimmed sequence reads. Reads that did not make the cut have been 
-        moved to unpaired archieves (1U and 2U).
-    
+        Trimmed sequence reads. Reads that did not make the cut have been moved to unpaired archieves 
+        (1U and 2U).
+        
+    Threads:
+        2, although trimmomatic supports multithreading its implementation is not significantly 
+        effective past 2 threads. For multiple samples 2 threads per sample revolves to multiple 
+        trimmomatic rules being able to run at a relatively fast runtime. When dealing with 
+        notably large files, such that runtime exacerbates, splitting the input files into batches
+        would be an effective solution.
+        
     Shell clarification:
         java -jar <path to trimmomatic.jar>
         PE (paired end) <input file> <output file path>
@@ -49,14 +56,16 @@ rule trimmomatic:
     """
     input:
         tool = config["trimmomatic_tool"],
+        illumina_clip = config["illumina_clip"],
         sample = get_sample_from_wildcard
     output:
         expand(["trimmed_samples/{{sample}}_R1_{replicate}.fq.gz",
                 "trimmed_samples/{{sample}}_R2_{replicate}.fq.gz"],
                 replicate=["P", "U"])
+    threads: 2
     shell:
         "java -jar {input.tool} "
-        "PE {input.sample} {output} "
-        "ILLUMINACLIP:tools/trimmomatic-0.32-1/share/TruSeq3-PE.fa:2:30:10 "
+        "PE -threads {threads} {input.sample} {output} "
+        "ILLUMINACLIP:{input.illumina_clip}:2:30:10 "
         "SLIDINGWINDOW:4:20 "
         "MINLEN:70"

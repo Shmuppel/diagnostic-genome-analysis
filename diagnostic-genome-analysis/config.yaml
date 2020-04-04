@@ -14,6 +14,9 @@ picard_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/
 varscan_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/varscan-v2.3.9/VarScan.jar
 annovar_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/annovar/
 
+# TRIMMOMATIC OPTIONS
+illumina_clip: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/trimmomatic-0.32-1/share/TruSeq3-PE.fa
+
 # ANNOVAR DATABASES
 #   Most of the time the file corresponding to the database will be "databaseX.txt", however some databases
 # (e.g. human genome project) download multiple files, when this is the case the file will have to be

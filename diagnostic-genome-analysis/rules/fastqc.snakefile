@@ -33,7 +33,7 @@ rule fastqc:
 
     Shell clarification: 
         parallel -j {no. threads to use}
-        cat {input file} | fastqc --outdir=<output file directory> stdin:{sample name}_<read no.>
+        cat {input file} | fastqc --outdir=<output file directory> stdin:{sample name}_R<job no.>
 
     Reference & further info:
         https://www.bioinformatics.babraham.ac.uk/projects/fastqc/INSTALL.txt
@@ -45,8 +45,8 @@ rule fastqc:
     input:
         sample = get_sample_from_wildcard
     output:
-        expand("fastqc/{{sample}}_{num}_fastqc.html", num=["R1", "R2"])
+        expand("results/fastqc/{{sample}}_{num}_fastqc.html", num=["R1", "R2"])
     threads: 2
     shell:
         "parallel -j {threads} " \
-        "'cat {{1}} | fastqc --outdir=./fastqc stdin:{wildcards.sample}_R{{#}}' ::: {input} "
+        "'cat {{1}} | fastqc --outdir=./results/fastqc stdin:{wildcards.sample}_R{{#}}' ::: {input} "

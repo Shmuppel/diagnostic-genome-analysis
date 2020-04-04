@@ -40,8 +40,8 @@ rule annovar:
 		vcf="vcf/vcf_{sample}.vcf"
 	output:
 		# wildcard sample used dynamically with config.yaml; genome build is added as a prefix by Annovar.
-		expand(["annovar/{{sample}}.{genome_build}_multianno.txt",
-				"annovar/{{sample}}.{genome_build}_multianno.vcf"],
+		expand(["results/annovar/{{sample}}.{genome_build}_multianno.txt",
+				"results/annovar/{{sample}}.{genome_build}_multianno.vcf"],
 		   		genome_build = config["genome_build"])
 	run:
 		# gather string of databases to use for variant annotating.
@@ -51,7 +51,7 @@ rule annovar:
 
 		shell("{config[annovar_tool]}table_annovar.pl "
 			  "-vcfinput {input.vcf} " \
-			  "-out annovar/{wildcards.sample} "
+			  "-out results/annovar/{wildcards.sample} "
 			  "-buildver {config[genome_build]} " \
 			  "-protocol " + protocols + ' ' + \
 			  "-operation " + operations + ' ' + \
