@@ -12,7 +12,7 @@ rule mark_duplicates:
     Shell clarification: 
         java -jar <path to picard.jar> 
         Markduplicates I=<input file> O=<output file path> M=<metrics file>
-        ASSUME_SORTED=true (as BAM is sorted by samtools sort)
+        ASSUME_SORTED=<true/false> (true as BAM is sorted by samtools sort)
     
     Citation: 
         “Picard Toolkit.” 2019. Broad Institute, GitHub Repository.

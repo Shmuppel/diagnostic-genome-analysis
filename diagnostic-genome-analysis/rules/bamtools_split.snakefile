@@ -8,18 +8,18 @@ rule bamtools_split:
     Output: 
         Multiple BAM files, depending on the amount of chromosomes specified in config.yaml.
         Each file contains the reads of one chromosome.
+    
+    Params:
+        out_dir: the path pointing towards the output directory, used as a stub by bamtools split.
         
     Shadow: 
         Full, creates a temporary environment to store the output values of bamtools split.
         Allows unused chromosome seperated BAM files to be discarded.
     
-    Params:
-        out_dir: the path pointing towards the output directory, used as a stub by bamtools split.
-    
     Shell clarification:
-        bamtools split -in {input} 
+        bamtools split -in <input>
         -reference (to separate by chromosome) 
-        -stub {prefix/directory of output path}"
+        -stub <prefix/directory of output path>"
     
     Citation: 
         Derek W. Barnett, Erik K. Garrison, Aaron R. Quinlan, Michael P. Strömberg, Gabor T. Marth, 
@@ -31,11 +31,10 @@ rule bamtools_split:
     output:
         temp(expand("runs/{{sample}}/temp_files/split_reads/{{sample}}.REF_chr{chr}.bam",
                     chr = config["chromosomes"]))
+    params:
+        out_dir = "runs/{sample}/temp_files/split_reads/{sample}"
     shadow: "full"
     wildcard_constraints: chr="."
-    params:
-        # file path where split reads should be stored.
-        out_dir = "runs/{sample}/temp_files/split_reads/{sample}"
     benchmark:
         "runs/{sample}/benchmarks/bamtools_split.txt"
     shell:

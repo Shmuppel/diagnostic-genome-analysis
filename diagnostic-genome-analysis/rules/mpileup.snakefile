@@ -7,6 +7,9 @@ rule samtools_mpileup:
     
     Output: 
         File in mpileup format containing reads.
+        
+    Threads:
+        1, as mpileup does not support multithreading.
     
     Shell clarification: 
         samtools mpileup -f <reference genome> <input file> -o <output file path>
@@ -22,6 +25,7 @@ rule samtools_mpileup:
         bam = "runs/{sample}/temp_files/split_reads/{sample}.REF_chr{chr}.bam"
     output:
         mpileup = temp("runs/{sample}/temp_files/mpileup_chr{chr}.mpileup")
+    threads: 1
     benchmark:
         "runs/{sample}/benchmarks/samtools_mpileup_{chr}.txt"
     shell:

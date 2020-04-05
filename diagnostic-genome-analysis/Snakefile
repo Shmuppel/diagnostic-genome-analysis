@@ -39,8 +39,14 @@ include: "rules/annovar.snakefile"
 rule report:
 	input:
 		expand("runs/{sample}/results/{sample}_{num}_fastqc.html",
-			   sample=config["samples"],
-			   num=["R1", "R2"]),
+			sample=config["samples"],
+			num=["R1", "R2"]),
 		expand("runs/{sample}/results/{sample}.{genome_build}_multianno.txt",
-			   sample=config["samples"],
-			   genome_build = config["genome_build"])
+			sample=config["samples"],
+			genome_build = config["genome_build"])
+	log:
+		notebook = "runs/run_results_notebook.ipynb"
+	notebook:
+		"notebooks/diagnostic_genome_analysis.ipynb"
+
+

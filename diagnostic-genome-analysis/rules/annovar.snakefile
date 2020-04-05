@@ -11,9 +11,13 @@ rule annovar:
 		
 	Params:
 		out_dir: path pointing to the output directory, used as a stub by bamtools split.
+	
+	Threads:
+		8
 		
 	Shell clarification:
 		<annovar tool path>table_annovar.pl 
+		-thread <number of threads to use>
 		-vcfinput <input VCF file> 
 		-out <output file location>
 		-buildver <genome build version>
@@ -38,6 +42,7 @@ rule annovar:
 		out_dir = "runs/{sample}/results/{sample}"
 	benchmark:
 		"runs/{sample}/benchmarks/annovar.txt"
+	threads: min(8, workflow.cores)
 	run:
 		# gather string of databases to use for variant annotating.
 		protocols = ",".join(config["annovar_dbs"].keys())
@@ -45,6 +50,7 @@ rule annovar:
 		operations = ",".join([config["annovar_dbs"][db]["operation"] for db in config["annovar_dbs"]])
 
 		shell("{config[annovar_tool]}table_annovar.pl " \
+			  "-thread {threads} " \ 
 			  "-vcfinput {input.vcf} " \
 			  "-out {params.out_dir} "
 			  "-buildver {config[genome_build]} " \

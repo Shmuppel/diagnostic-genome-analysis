@@ -32,8 +32,8 @@ rule fastqc:
         allows renaming of the output files into a more accessible naming convention. 
 
     Shell clarification: 
-        parallel -j {no. threads to use}
-        cat {input file} | fastqc --outdir=<output file directory> stdin:{sample name}_R<job no.>
+        parallel -j <no. threads to use>
+        cat <input file> | fastqc --outdir=<output file directory> stdin:<sample name>_R<job no.>
 
     Reference & further info:
         https://www.bioinformatics.babraham.ac.uk/projects/fastqc/INSTALL.txt

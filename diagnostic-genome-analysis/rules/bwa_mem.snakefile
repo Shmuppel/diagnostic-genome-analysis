@@ -9,11 +9,12 @@ rule bwa_mem:
         A BAM file containing the mapped sample.
         
     Threads: 
-        12
+        12, provides a good maximum beyond which BWA mem won't significantly
+        speed up.
     
     Shell clarification: 
-        bwa mem -M (for picard compatibility) {input genome} {input sample reads} | 
-        samtools view -b (to export into BAM file) {output file path}
+        bwa mem -M (for picard compatibility) <input reference genome> <input sample reads> | 
+        samtools view -b (to export into BAM file) <output file path>
 
     Reference & further info: 
         http://bio-bwa.sourceforge.net/bwa.shtml

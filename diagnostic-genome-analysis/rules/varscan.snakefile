@@ -7,7 +7,10 @@ rule varscan:
 
 	Output: 
 		VCF file containing filtered variants.
-
+	
+	Threads:
+		1, as varscan does not support multithreading.
+		
 	Shell clarification: 
 		java -jar <path to varscan jar>
 		mpileup2snp <mpileup input file>
@@ -28,6 +31,7 @@ rule varscan:
 		vcf = temp("runs/{sample}/temp_files/vcf_chr{chr}.mpileup")
 	benchmark:
 		"runs/{sample}/benchmarks/varscan_{chr}.txt"
+	threads: 1
 	shell:
 		"java -jar {input.tool} " \
 		"mpileup2snp {input.mpileup} " \
