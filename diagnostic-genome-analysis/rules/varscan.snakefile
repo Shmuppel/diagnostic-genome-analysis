@@ -3,7 +3,7 @@ rule varscan:
 	Identifies statistically signifant SNPs of a mpileup file using VarScan 2.
 
 	Input: 
-		mpileup file to scan for SNPs.
+		File in mpileup format to scan for SNPs.
 
 	Output: 
 		VCF file containing filtered variants.
@@ -22,10 +22,12 @@ rule varscan:
 		In Genome Research, 22 (3), pp. 568–576.
 	"""
 	input:
-		tool=config["varscan_tool"],
-		mpileup="mpileup/mpileup_{sample}.mpileup"
+		tool = config["varscan_tool"],
+		mpileup = "runs/{sample}/temp_files/mpileup_chr{chr}.mpileup"
 	output:
-		vcf="vcf/vcf_{sample}.vcf"
+		vcf = temp("runs/{sample}/temp_files/vcf_chr{chr}.mpileup")
+	benchmark:
+		"runs/{sample}/benchmarks/varscan_{chr}.txt"
 	shell:
 		"java -jar {input.tool} " \
 		"mpileup2snp {input.mpileup} " \

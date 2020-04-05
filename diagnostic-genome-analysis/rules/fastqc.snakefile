@@ -45,8 +45,12 @@ rule fastqc:
     input:
         sample = get_sample_from_wildcard
     output:
-        expand("results/fastqc/{{sample}}_{num}_fastqc.html", num=["R1", "R2"])
+        expand("runs/{{sample}}/results/{{sample}}_{num}_fastqc.html", num=["R1", "R2"])
+    params:
+        out_dir = "runs/{sample}/results/"
+    benchmark:
+        "runs/{sample}/benchmarks/fastqc.txt"
     threads: min(2, workflow.cores - config["reserve_annovar_db_thread"])
     shell:
         "parallel -j {threads} " \
-        "'cat {{1}} | fastqc --outdir=./results/fastqc stdin:{wildcards.sample}_R{{#}}' ::: {input} "
+        "'cat {{1}} | fastqc --outdir={params.out_dir} stdin:{wildcards.sample}_R{{#}}' ::: {input} "

@@ -1,17 +1,18 @@
 """
 Diagnostic Genome Analysis - Snakemake Pipeline
 
-Preperation:
+Preperation rules:
     -Retrieving remote genome (code provided, but currently offline)
     -Retrieving remote Annovar databases
 	-BWA Index
 
-Pipeline tools:
+Tools supported:
 	-FastQC
 	-Trimmomatic
 	-BWA MEM Mapping
-	-Samtools Sort
+	-Samtools sort
 	-Markduplicates
+	-Bamtools split
 	-MpileUp
 	-VarScan 2
 	-Annovar
@@ -26,14 +27,20 @@ include: "rules/fastqc.snakefile"
 include: "rules/trimmomatic.snakefile"
 include: "rules/bwa_mem.snakefile"
 include: "rules/samtools_sort.snakefile"
-include: "rules/markduplicates.snakefile"
+include: "rules/bamtools_split.snakefile"
+include: "rules/marked_duplicates.snakefile"
 include: "rules/mpileup.snakefile"
 include: "rules/varscan.snakefile"
+include: "rules/concat_vcf.snakefile"
 include: "rules/annovar.snakefile"
 
 
 # PIPELINE RULES.
 rule report:
 	input:
-		expand("results/fastqc/{sample}_{num}_fastqc.html", sample=config["samples"], num=["R1", "R2"]),
-		expand("results/annovar/{sample}." + config["genome_build"] + "_multianno.txt", sample=config["samples"])
+		expand("runs/{sample}/results/{sample}_{num}_fastqc.html",
+			   sample=config["samples"],
+			   num=["R1", "R2"]),
+		expand("runs/{sample}/results/{sample}.{genome_build}_multianno.txt",
+			   sample=config["samples"],
+			   genome_build = config["genome_build"])

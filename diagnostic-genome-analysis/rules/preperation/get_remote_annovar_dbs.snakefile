@@ -36,7 +36,7 @@ rule get_remote_annovar_dbs:
         <annovar databases storage folder>
     """
     output: db_paths
-    threads: 1
+    threads: config["reserve_annovar_db_thread"]
     priority: 1
     run:
         # initiate a queue of databases to be downloaded.

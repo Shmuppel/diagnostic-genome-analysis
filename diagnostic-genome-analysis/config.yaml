@@ -1,6 +1,7 @@
+# ---  DATA/TOOL PATHS ---
 # REMOTE GENOME
-# > Only advised if own genome not provided, currently not possible as galaxy.bioinf.nl datasets are offline.
-# > remote_genome_path: https://galaxy.bioinf.nl/datasets/a06c4ae666b2cd6a/display?to_ext=fasta
+# - Only advised if own genome not provided, currently not possible as galaxy.bioinf.nl datasets are offline.
+# - remote_genome_path: https://galaxy.bioinf.nl/datasets/a06c4ae666b2cd6a/display?to_ext=fasta
 
 # LOCAL REFERENCE GENOME / SAMPLES PATHS
 genome: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/reference/genome_hg19.fa
@@ -14,7 +15,12 @@ picard_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/
 varscan_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/varscan-v2.3.9/VarScan.jar
 annovar_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/annovar/
 
-# TRIMMOMATIC OPTIONS
+# --- SETTINGS ---
+# CHROMOSOMES
+#   Insert chromosome numbers / letters of interest for analysis.
+chromosomes: [2, 3, 6, 10, 14, 17, 18, 20, X]
+
+# TRIMMOMATIC
 illumina_clip: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/trimmomatic-0.32-1/share/TruSeq3-PE.fa
 
 # ANNOVAR DATABASES
@@ -41,4 +47,5 @@ annovar_dbs:
     operation: f
 
 # MULTITHREADING
+#   The no. threads to reserve for the downloading of Annovar databases (recommended: 0 or 1).
 reserve_annovar_db_thread: 0

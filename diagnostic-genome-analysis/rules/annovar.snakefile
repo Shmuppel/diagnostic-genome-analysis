@@ -1,25 +1,16 @@
-def get_annovar_db_paths():
-	"""
-    Retrieves the local paths where Annovar databases are/should be stored.
-
-    Used so that databases only have to be downloaded once, and so that dependencies
-    can be dynamically added / removed in config.yaml.
-    """
-	# example db path: annovar databases folder + genome build prefix + annovar database file; for each database.
-	return [config["annovar_db_storage"] + config["genome_build"] + '_' + config["annovar_dbs"][db]["file"]
-			for db in config["annovar_dbs"]]
-
 rule annovar:
 	"""
-	Annotates genetic variants using various databases, which can be configured
-	in config.yaml.
+	Annotates genetic variants using various databases, which can be configured in config.yaml.
 	
 	Input:
-		Annovar annotation databases to perform operations with.
+		Annovar annotation databases to perform operations with, retrieved from get_remote_annovar_dbs.
 		VCF file containing variants to annotate. 
 		
 	Output:
 		Multiannotated .txt and .vcf files containing annotated variants.
+		
+	Params:
+		out_dir: path pointing to the output directory, used as a stub by bamtools split.
 		
 	Shell clarification:
 		<annovar tool path>table_annovar.pl 
@@ -36,22 +27,26 @@ rule annovar:
 		38:e164, 2010
 	"""
 	input:
-		get_annovar_db_paths(),
-		vcf="vcf/vcf_{sample}.vcf"
+		rules.get_remote_annovar_dbs.output,
+		vcf = "runs/{sample}/temp_files/vcf_{sample}.vcf"
 	output:
 		# wildcard sample used dynamically with config.yaml; genome build is added as a prefix by Annovar.
-		expand(["results/annovar/{{sample}}.{genome_build}_multianno.txt",
-				"results/annovar/{{sample}}.{genome_build}_multianno.vcf"],
+		expand(["runs/{{sample}}/results/{{sample}}.{genome_build}_multianno.txt",
+				"runs/{{sample}}/results/{{sample}}.{genome_build}_multianno.vcf"],
 		   		genome_build = config["genome_build"])
+	params:
+		out_dir = "runs/{sample}/results/{sample}"
+	benchmark:
+		"runs/{sample}/benchmarks/annovar.txt"
 	run:
 		# gather string of databases to use for variant annotating.
 		protocols = ",".join(config["annovar_dbs"].keys())
 		# gather string of operations to perform with these databases.
 		operations = ",".join([config["annovar_dbs"][db]["operation"] for db in config["annovar_dbs"]])
 
-		shell("{config[annovar_tool]}table_annovar.pl "
+		shell("{config[annovar_tool]}table_annovar.pl " \
 			  "-vcfinput {input.vcf} " \
-			  "-out results/annovar/{wildcards.sample} "
+			  "-out {params.out_dir} "
 			  "-buildver {config[genome_build]} " \
 			  "-protocol " + protocols + ' ' + \
 			  "-operation " + operations + ' ' + \

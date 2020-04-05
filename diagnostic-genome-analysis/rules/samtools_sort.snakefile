@@ -7,7 +7,12 @@ rule samtools_sort:
     
     Output: 
         Sorted BAM file.
-    
+        
+    Threads:
+        6, this number of threats provided a good maximum beyond which paralellization did 
+        not significantly improve performance. Depending on sample sizes used it might be
+        effective to increase or decrease the number of threads.
+        
     Shell clarification: 
         samtools sort -O <output format> <input file> > <output file path>
     
@@ -18,8 +23,11 @@ rule samtools_sort:
         Bioinformatics, 25, 2078-9. [PMID: 19505943]
     """
     input:
-        "mapped_reads/mapped_{sample}.bam"
+        "runs/{sample}/temp_files/bwa_mem_{sample}.bam.fq.gz"
     output:
-        "sorted_reads/sorted_{sample}.bam"
+        temp("runs/{sample}/temp_files/samtools_sort_{sample}.bam")
+    benchmark:
+        "runs/{sample}/benchmarks/samtools_sort.txt"
+    threads: min(6, workflow.cores - config["reserve_annovar_db_thread"])
     shell:
-        "samtools sort -O bam {input} > {output}"
+        "samtools sort -@ {threads} -O bam {input} > {output}"

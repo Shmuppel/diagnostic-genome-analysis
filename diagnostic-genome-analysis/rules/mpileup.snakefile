@@ -6,7 +6,7 @@ rule samtools_mpileup:
         Reference genome and BAM file to convert.
     
     Output: 
-        Pileup file containing samples.
+        File in mpileup format containing reads.
     
     Shell clarification: 
         samtools mpileup -f <reference genome> <input file> -o <output file path>
@@ -19,8 +19,10 @@ rule samtools_mpileup:
     """
     input:
         reference_genome = config["genome"],
-        bam = "marked_duplicates/marked_{sample}.bam",
+        bam = "runs/{sample}/temp_files/split_reads/{sample}.REF_chr{chr}.bam"
     output:
-        mpileup = "mpileup/mpileup_{sample}.mpileup"
+        mpileup = temp("runs/{sample}/temp_files/mpileup_chr{chr}.mpileup")
+    benchmark:
+        "runs/{sample}/benchmarks/samtools_mpileup_{chr}.txt"
     shell:
-        "samtools mpileup -f {input.reference_genome} {input.bam} -o {output.mpileup}"
+        "samtools mpileup -f {input.reference_genome} {input.bam} > {output.mpileup}"

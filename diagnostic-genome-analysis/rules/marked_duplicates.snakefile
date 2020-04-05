@@ -20,10 +20,12 @@ rule mark_duplicates:
     """
     input:
         tool = config["picard_tool"],
-        sample = "sorted_reads/sorted_{sample}.bam"
+        sample = "runs/{sample}/temp_files/samtools_sort_{sample}.bam"
     output:
-        bam = temp("marked_duplicates/marked_{sample}.bam"),
-        metrics = temp("marked_duplicates/marked_{sample}_metrics.txt")
+        bam = temp("runs/{sample}/temp_files/marked_duplicates_{sample}.bam"),
+        metrics = temp("runs/{sample}/temp_files/marked_duplicates_{sample}_metrics.txt")
+    benchmark:
+        "runs/{sample}/benchmarks/marked_duplicates.txt"
     shell:
         "java -jar {input.tool} "
         "MarkDuplicates I={input.sample} O={output.bam} M={output.metrics} "
