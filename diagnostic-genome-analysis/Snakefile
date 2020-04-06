@@ -38,8 +38,16 @@ include: "rules/annovar.snakefile"
 
 rule all:
 	input:
-		expand("runs/{sample}/results/run_results_notebook.ipynb",
+		expand("runs/{sample}/results/results_notebook.html",
 			   sample=config["samples"])
+
+rule jupyter_to_html:
+	input:
+		"runs/{sample}/results/results_notebook.ipynb"
+	output:
+		"runs/{sample}/results/results_notebook.html"
+	shell:
+		"jupyter nbconvert --execute --to html {input}"
 
 rule jupyter_report:
 	input:
@@ -48,10 +56,10 @@ rule jupyter_report:
 		expand("runs/{{sample}}/results/{{sample}}.{genome_build}_multianno.txt",
 			   genome_build = config["genome_build"])
 	output:
-		"runs/{sample}/results/run_results_notebook.ipynb"
+		"runs/{sample}/results/results_notebook.ipynb"
 	log:
-		notebook = "runs/{sample}/results/run_results_notebook.ipynb"
+		notebook = "runs/{sample}/results/results_notebook.ipynb"
 	notebook:
-		"notebook_templates/diagnostic_genome_analysis.ipynb"
+		config["notebook"]
 
 

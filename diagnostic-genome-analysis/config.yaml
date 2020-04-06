@@ -1,7 +1,7 @@
 # ---  DATA/TOOL PATHS ---
 # REMOTE GENOME
-# - Only advised if own genome not provided, currently not possible as galaxy.bioinf.nl datasets are offline.
-# - remote_genome_path: https://galaxy.bioinf.nl/datasets/a06c4ae666b2cd6a/display?to_ext=fasta
+#   Path to remote genome location to be downloaded through HTTP transfer.
+# remote_genome_path:
 
 # LOCAL REFERENCE GENOME / SAMPLES PATHS
 genome: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/reference/genome_hg19.fa
@@ -9,13 +9,16 @@ genome_build: hg19
 #   Samples should follow {sample}_{R1/R2}.fastq naming convention.
 samples:
   A: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001
-  B: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001
 
 # LOCAL TOOL PATHS
 trimmomatic_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/trimmomatic-0.32-1/jar/trimmomatic.jar
 picard_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/picard/picard.jar
 varscan_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/varscan-v2.3.9/VarScan.jar
 annovar_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/annovar/
+
+# NOTEBOOK PATH
+#   Path to the notebook that should be used as a template for final analysis.
+notebook: notebook_templates/diagnostic_genome_analysis.ipynb
 
 # --- SETTINGS ---
 # CHROMOSOMES
@@ -50,4 +53,4 @@ annovar_dbs:
 
 # MULTITHREADING
 #   The no. threads to reserve for the downloading of Annovar databases (recommended: 0 or 1).
-reserve_annovar_db_thread: 1
+reserve_annovar_db_thread: 0
