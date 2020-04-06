@@ -54,9 +54,11 @@ rule annovar:
 	shadow: "full"
 	benchmark:
 		"runs/{sample}/benchmarks/annovar.txt"
+	log:
+		"runs/{sample}/logs/annovar.log"
 	threads: min(4, workflow.cores)
 	shell:
-		"{config[annovar_tool]}table_annovar.pl "
+		"({config[annovar_tool]}table_annovar.pl "
 		"-thread {threads} "
 		"-vcfinput {input.vcf} "
 		"-out {params.out_dir} "
@@ -64,4 +66,5 @@ rule annovar:
 		"-protocol {params.protocols} "
 		"-operation {params.operations} "
 		"{config[annovar_db_storage]} "
-		"-remove "
+		"-remove ) "
+		"2> {log}"

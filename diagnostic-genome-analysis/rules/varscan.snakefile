@@ -31,10 +31,13 @@ rule varscan:
 		vcf = temp("runs/{sample}/temp_files/vcf_chr{chr}.mpileup")
 	benchmark:
 		"runs/{sample}/benchmarks/varscan_{chr}.txt"
+	log:
+		"runs/{sample}/logs/varscan_{chr}.log"
 	threads: 1
 	shell:
-		"java -jar {input.tool} "
+		"(java -jar {input.tool} "
 		"mpileup2snp {input.mpileup} "
 		"--min-var-freq 0.3 "
 		"--p-value 0.05 "
-		"--output-vcf 1 > {output.vcf}"
+		"--output-vcf 1 > {output.vcf}) "
+		"2> {log}"

@@ -34,6 +34,9 @@ rule bwa_mem:
         temp("runs/{sample}/temp_files/bwa_mem_{sample}.bam.fq.gz")
     benchmark:
         "runs/{sample}/benchmarks/bwa_mem.txt"
+    log:
+        "runs/{sample}/logs/bwa_mem.log"
     threads: min(12, workflow.cores - config["reserve_annovar_db_thread"])
     shell:
-        "bwa mem -M -t {threads} {input.genome} {input.samples} | samtools view -b > {output}"
+        "(bwa mem -M -t {threads} {input.genome} {input.samples} | samtools view -b > {output}) "
+        "2> {log}"

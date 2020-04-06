@@ -26,7 +26,10 @@ rule mark_duplicates:
         metrics = temp("runs/{sample}/temp_files/marked_duplicates_{sample}_metrics.txt")
     benchmark:
         "runs/{sample}/benchmarks/marked_duplicates.txt"
+    log:
+        "runs/{sample}/logs/mark_duplicates.log"
     shell:
-        "java -jar {input.tool} "
+        "(java -jar {input.tool} "
         "MarkDuplicates I={input.sample} O={output.bam} M={output.metrics} "
-        "ASSUME_SORTED=true"
+        "ASSUME_SORTED=true) "
+        "2> {log}"

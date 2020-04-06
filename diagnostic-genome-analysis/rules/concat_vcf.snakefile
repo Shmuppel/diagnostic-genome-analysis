@@ -14,5 +14,8 @@ rule concat_vcf:
         temp("runs/{sample}/temp_files/vcf_{sample}.vcf"),
     benchmark:
         "runs/{sample}/benchmarks/concat_vcf.txt"
+    log:
+        "runs/{sample}/logs/concat_vcf.log"
     shell:
-        "cat {input} > {output}"
+        "(cat {input} > {output}) "
+        "2> {log}"

@@ -28,6 +28,9 @@ rule samtools_sort:
         temp("runs/{sample}/temp_files/samtools_sort_{sample}.bam")
     benchmark:
         "runs/{sample}/benchmarks/samtools_sort.txt"
+    log:
+        "runs/{sample}/logs/samtools_sort.log"
     threads: min(6, workflow.cores - config["reserve_annovar_db_thread"])
     shell:
-        "samtools sort -@ {threads} -O bam {input} > {output}"
+        "(samtools sort -@ {threads} -O bam {input} > {output}) "
+        "2> {log}"

@@ -28,5 +28,8 @@ rule samtools_mpileup:
     threads: 1
     benchmark:
         "runs/{sample}/benchmarks/samtools_mpileup_{chr}.txt"
+    log:
+        "runs/{sample}/logs/mpileup_{chr}.log"
     shell:
-        "samtools mpileup -f {input.reference_genome} {input.bam} > {output.mpileup}"
+        "(samtools mpileup -f {input.reference_genome} {input.bam} > {output.mpileup}) "
+        "2> {log}"

@@ -53,7 +53,10 @@ rule fastqc:
         out_dir = "runs/{sample}/results/"
     benchmark:
         "runs/{sample}/benchmarks/fastqc.txt"
+    log:
+        "runs/{sample}/logs/fastqc.log"
     threads: min(2, workflow.cores - config["reserve_annovar_db_thread"])
     shell:
-        "parallel -j {threads} " \
-        "'cat {{1}} | fastqc --outdir={params.out_dir} stdin:{wildcards.sample}_R{{#}}' ::: {input} "
+        "(parallel -j {threads} "
+        "'cat {{1}} | fastqc --outdir={params.out_dir} stdin:{wildcards.sample}_R{{#}}' ::: {input}) "
+        "2> {log}"

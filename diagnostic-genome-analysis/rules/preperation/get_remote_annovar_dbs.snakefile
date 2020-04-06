@@ -36,6 +36,8 @@ rule get_remote_annovar_dbs:
         <annovar databases storage folder>
     """
     output: db_paths
+    log:
+        "runs/pipeline_preperation/logs/get_remote_annovar_dbs.log"
     threads: min(config["reserve_annovar_db_thread"], workflow.cores)
     priority: 1
     run:
@@ -44,9 +46,9 @@ rule get_remote_annovar_dbs:
             command = "{config[annovar_tool]}annotate_variation.pl " \
                        "-buildver {config[genome_build]} " \
                        "-downdb -webfrom annovar " + db + " {config[annovar_db_storage]} "
-            shell("sem -j {threads} --id get_remote_annovar_dbs " + command)
+            shell("(sem -j {threads} --id get_remote_annovar_dbs " + command + " ) >> {log}")
 
         # wait for all downloads to be completed before continuing.
-        shell("sem --wait --id get_remote_annovar_dbs")
+        shell("(sem --wait --id get_remote_annovar_dbs ) >> {log}")
         # update local config, a thread no longer has to be reserved for this rule (will not change config.yaml).
         snakemake.utils.update_config(snakemake.workflow.config, {"reserve_annovar_db_thread": 0})

@@ -65,10 +65,13 @@ rule trimmomatic:
                     replicate=["P", "U"]))
     benchmark:
         "runs/{sample}/benchmarks/trimmomatic.txt"
+    log:
+        "runs/{sample}/logs/trimmomatic.log"
     threads: min(2, workflow.cores - config["reserve_annovar_db_thread"])
     shell:
-        "java -jar {input.tool} "
+        "(java -jar {input.tool} "
         "PE -threads {threads} {input.sample} {output} "
         "ILLUMINACLIP:{input.illumina_clip}:2:30:10 "
         "SLIDINGWINDOW:4:20 "
-        "MINLEN:70"
+        "MINLEN:70) "
+        "2> {log}"

@@ -29,7 +29,9 @@ rule bwa_index:
         expand("{genome}.{ext}",
                genome=config["genome"],
                ext=["amb", "ann", "bwt", "pac", "sa"])
+    log:
+        "runs/pipeline_preperation/logs/bwa_index.log"
     threads: 1
     priority: 1
     shell:
-        "bwa index -a bwtsw {input}"
+        "(bwa index -a bwtsw {input}) 2> {log}"

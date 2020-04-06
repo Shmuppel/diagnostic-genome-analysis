@@ -19,6 +19,8 @@ rule get_remote_genome:
         HTTP.remote(config["remote_genome_path"], keep_local=True)
     output:
         config["genome"]
+    log:
+        "runs/pipeline_preperation/logs/get_remote_genome.log"
     threads: 1
     priority: 1
     run:

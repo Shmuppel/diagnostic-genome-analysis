@@ -37,5 +37,8 @@ rule bamtools_split:
     wildcard_constraints: chr="."
     benchmark:
         "runs/{sample}/benchmarks/bamtools_split.txt"
+    log:
+        "runs/{sample}/logs/bamtools_split.log"
     shell:
-        "bamtools split -in {input} -reference -stub {params.out_dir}"
+        "(bamtools split -in {input} -reference -stub {params.out_dir}) "
+        "2> {log}"
