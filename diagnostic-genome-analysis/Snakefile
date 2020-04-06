@@ -18,8 +18,10 @@ Tools supported:
 	-Annovar
 """
 
+# CONFIG
 configfile: "config.yaml"
 
+# PIPELINE RULES.
 #include: "rules/preperation/get_remote_genome.snakefile"
 include: "rules/preperation/get_remote_annovar_dbs.snakefile"
 include: "rules/preperation/bwa_index.snakefile"
@@ -34,19 +36,22 @@ include: "rules/varscan.snakefile"
 include: "rules/concat_vcf.snakefile"
 include: "rules/annovar.snakefile"
 
-
-# PIPELINE RULES.
-rule report:
+rule all:
 	input:
-		expand("runs/{sample}/results/{sample}_{num}_fastqc.html",
-			sample=config["samples"],
-			num=["R1", "R2"]),
-		expand("runs/{sample}/results/{sample}.{genome_build}_multianno.txt",
-			sample=config["samples"],
-			genome_build = config["genome_build"])
+		expand("runs/{sample}/results/run_results_notebook.ipynb",
+			   sample=config["samples"])
+
+rule jupyter_report:
+	input:
+		expand("runs/{{sample}}/results/{{sample}}_{num}_fastqc.html",
+			   num = ["R1", "R2"]),
+		expand("runs/{{sample}}/results/{{sample}}.{genome_build}_multianno.txt",
+			   genome_build = config["genome_build"])
+	output:
+		"runs/{sample}/results/run_results_notebook.ipynb"
 	log:
-		notebook = "runs/run_results_notebook.ipynb"
+		notebook = "runs/{sample}/results/run_results_notebook.ipynb"
 	notebook:
-		"notebooks/diagnostic_genome_analysis.ipynb"
+		"notebook_templates/diagnostic_genome_analysis.ipynb"
 
 

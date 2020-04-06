@@ -21,7 +21,10 @@ rule fastqc:
     Output: 
         Analysis of samples, summarized in an HTML file. 
         An archieve of all graphs and figures.
-        
+    
+    Params:
+        out_dir: path pointing to the output directory.
+    
     Threads: 
         2, this rule will issue two FastQC processes running in parallel, each analyzing 1 
         single end read file. 

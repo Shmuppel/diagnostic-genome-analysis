@@ -10,7 +10,11 @@ rule annovar:
 		Multiannotated .txt and .vcf files containing annotated variants.
 		
 	Params:
-		out_dir: path pointing to the output directory, used as a stub by bamtools split.
+		out_dir: path pointing to the output directory.
+	
+	Shadow: 
+        Full, creates a temporary environment to store the output values of Annovar.
+        Facilitates automatic removal of unwanted / unused files. 
 	
 	Threads:
 		8
@@ -40,6 +44,7 @@ rule annovar:
 		   		genome_build = config["genome_build"])
 	params:
 		out_dir = "runs/{sample}/results/{sample}"
+	shadow: "full"
 	benchmark:
 		"runs/{sample}/benchmarks/annovar.txt"
 	threads: min(8, workflow.cores)

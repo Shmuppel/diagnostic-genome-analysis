@@ -6,8 +6,10 @@
 # LOCAL REFERENCE GENOME / SAMPLES PATHS
 genome: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/reference/genome_hg19.fa
 genome_build: hg19
+#   Samples should follow {sample}_{R1/R2}.fastq naming convention.
 samples:
   A: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001
+  B: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001
 
 # LOCAL TOOL PATHS
 trimmomatic_tool: /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/trimmomatic-0.32-1/jar/trimmomatic.jar
