@@ -11,13 +11,16 @@ rule annovar:
 		
 	Params:
 		out_dir: path pointing to the output directory.
+		protocol: databases to annotate with, retrieved from config.yaml.
+		operation: operation to perform for each database, retrieved from config.yaml.
 	
 	Shadow: 
         Full, creates a temporary environment to store the output values of Annovar.
         Facilitates automatic removal of unwanted / unused files. 
 	
 	Threads:
-		8
+		4, Annovar support multithreading to some extend. More than 4 threads showed
+		no significant improvements in runtime. 
 		
 	Shell clarification:
 		<annovar tool path>table_annovar.pl 
@@ -43,23 +46,22 @@ rule annovar:
 				"runs/{{sample}}/results/{{sample}}.{genome_build}_multianno.vcf"],
 		   		genome_build = config["genome_build"])
 	params:
-		out_dir = "runs/{sample}/results/{sample}"
+		out_dir = "runs/{sample}/results/{sample}",
+		# gather string of databases to use for variant annotating.
+		protocols = ",".join(config["annovar_dbs"].keys()),
+		# gather string of operations to perform with these databases.
+		operations = ",".join([config["annovar_dbs"][db]["operation"] for db in config["annovar_dbs"]])
 	shadow: "full"
 	benchmark:
 		"runs/{sample}/benchmarks/annovar.txt"
-	threads: min(8, workflow.cores)
-	run:
-		# gather string of databases to use for variant annotating.
-		protocols = ",".join(config["annovar_dbs"].keys())
-		# gather string of operations to perform with these databases.
-		operations = ",".join([config["annovar_dbs"][db]["operation"] for db in config["annovar_dbs"]])
-
-		shell("{config[annovar_tool]}table_annovar.pl " \
-			  "-thread {threads} " \ 
-			  "-vcfinput {input.vcf} " \
-			  "-out {params.out_dir} "
-			  "-buildver {config[genome_build]} " \
-			  "-protocol " + protocols + ' ' + \
-			  "-operation " + operations + ' ' + \
-			  "{config[annovar_db_storage]} "
-			  "-remove ")
+	threads: min(4, workflow.cores)
+	shell:
+		"{config[annovar_tool]}table_annovar.pl "
+		"-thread {threads} "
+		"-vcfinput {input.vcf} "
+		"-out {params.out_dir} "
+		"-buildver {config[genome_build]} "
+		"-protocol {params.protocols} "
+		"-operation {params.operations} "
+		"{config[annovar_db_storage]} "
+		"-remove "

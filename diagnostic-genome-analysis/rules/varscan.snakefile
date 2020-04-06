@@ -33,8 +33,8 @@ rule varscan:
 		"runs/{sample}/benchmarks/varscan_{chr}.txt"
 	threads: 1
 	shell:
-		"java -jar {input.tool} " \
-		"mpileup2snp {input.mpileup} " \
-		"--min-var-freq 0.3 " \
-		"--p-value 0.05 " \ 
+		"java -jar {input.tool} "
+		"mpileup2snp {input.mpileup} "
+		"--min-var-freq 0.3 "
+		"--p-value 0.05 "
 		"--output-vcf 1 > {output.vcf}"
