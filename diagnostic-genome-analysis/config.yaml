@@ -53,4 +53,4 @@ annovar_dbs:
 
 # MULTITHREADING
 #   The no. threads to reserve for the downloading of Annovar databases (recommended: 0 or 1).
-reserve_annovar_db_thread: 1
+reserve_annovar_db_thread: 0

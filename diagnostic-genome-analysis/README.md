@@ -3,6 +3,8 @@
 This pipeline uses Snakemake to chain various genomic dataprocessing tools, with the goal of finding significant  
 genomic variants, and exhibiting them in a Jupyter Notebook.
 
+![picture](pipeline_DAG.png)
+
 ## Getting Started
 
 To get a copy of the pipeline it is recommended you clone this repository (Dataprocessing with Snakemake),   

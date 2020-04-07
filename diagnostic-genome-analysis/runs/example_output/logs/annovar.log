@@ -1,0 +1,120 @@
+NOTICE: the --polish argument is set ON automatically (use --nopolish to change this behavior)
+
+NOTICE: Running with system command <convert2annovar.pl  -includeinfo -allsample -withfreq -format vcf4 runs/A/temp_files/vcf_A.vcf > runs/A/results/A.avinput>
+NOTICE: Finished reading 1170 lines from VCF file
+NOTICE: A total of 954 locus in VCF file passed QC threshold, representing 954 SNPs (612 transitions and 342 transversions) and 0 indels/substitutions
+NOTICE: Finished writing allele frequencies based on 954 SNP genotypes (612 transitions and 342 transversions) and 0 indels/substitutions for 1 samples
+
+NOTICE: Running with system command </students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/annovar/table_annovar.pl -thread 4 runs/A/results/A.avinput -outfile runs/A/results/A -buildver hg19 -protocol refGene,exac03,avsnp138,ljb26_all,clinvar_20190305 -operation g,f,f,f,f /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/ -remove -otherinfo -nastring .>
+NOTICE: the --polish argument is set ON automatically (use --nopolish to change this behavior)
+-----------------------------------------------------------------
+NOTICE: Processing operation=g protocol=refGene
+
+NOTICE: Running with system command <annotate_variation.pl -geneanno -buildver hg19 -dbtype refGene -outfile runs/A/results/A.refGene -exonsort -nofirstcodondel runs/A/results/A.avinput /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/ -thread 4>
+NOTICE: Output files are written to runs/A/results/A.refGene.variant_function, runs/A/results/A.refGene.exonic_variant_function
+NOTICE: the queryfile runs/A/results/A.avinput contains 954 lines
+NOTICE: threading is disabled for gene-based annotation on file with less than 1000000 input lines
+NOTICE: Reading gene annotation from /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_refGene.txt ... Done with 72212 transcripts (including 17527 without coding sequence annotation) for 28250 unique genes
+NOTICE: Processing next batch with 954 unique variants in 954 input lines
+NOTICE: Reading FASTA sequences from /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_refGeneMrna.fa ... Done with 134 sequences
+WARNING: A total of 446 sequences will be ignored due to lack of correct ORF annotation
+
+NOTICE: Running with system command <coding_change.pl  runs/A/results/A.refGene.exonic_variant_function.orig /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs//hg19_refGene.txt /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs//hg19_refGeneMrna.fa -alltranscript -out runs/A/results/A.refGene.fa -newevf runs/A/results/A.refGene.exonic_variant_function>
+-----------------------------------------------------------------
+NOTICE: Processing operation=f protocol=exac03
+NOTICE: Finished reading 8 column headers for '-dbtype exac03'
+
+NOTICE: Running system command <annotate_variation.pl -filter -dbtype exac03 -buildver hg19 -outfile runs/A/results/A runs/A/results/A.avinput /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/ -thread 4 -otherinfo>
+NOTICE: Output file with variants matching filtering criteria is written to runs/A/results/A.hg19_exac03_dropped, and output file with other variants is written to runs/A/results/A.hg19_exac03_filtered
+NOTICE: the queryfile runs/A/results/A.avinput contains 954 lines
+NOTICE: Creating new threads for query line 1 to 239
+NOTICE: Creating new threads for query line 240 to 478
+NOTICE: Creating new threads for query line 479 to 717
+NOTICE: Creating new threads for query line 718 to 954
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 749886 and the number of bins to be scanned is 83
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_exac03.txt...Done
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 749886 and the number of bins to be scanned is 16
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_exac03.txt...Done
+NOTICE: Processing next batch with 237 unique variants in 237 input lines
+NOTICE: Database index loaded. Total number of bins is 749886 and the number of bins to be scanned is 38
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_exac03.txt...Done
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 749886 and the number of bins to be scanned is 97
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_exac03.txt...Done
+-----------------------------------------------------------------
+NOTICE: Processing operation=f protocol=avsnp138
+
+NOTICE: Running system command <annotate_variation.pl -filter -dbtype avsnp138 -buildver hg19 -outfile runs/A/results/A runs/A/results/A.avinput /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/ -thread 4>
+NOTICE: Output file with variants matching filtering criteria is written to runs/A/results/A.hg19_avsnp138_dropped, and output file with other variants is written to runs/A/results/A.hg19_avsnp138_filtered
+NOTICE: the queryfile runs/A/results/A.avinput contains 954 lines
+NOTICE: Creating new threads for query line 1 to 239
+NOTICE: Creating new threads for query line 240 to 478
+NOTICE: Creating new threads for query line 479 to 717
+NOTICE: Creating new threads for query line 718 to 954
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 23588106 and the number of bins to be scanned is 212
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_avsnp138.txt...Done
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 23588106 and the number of bins to be scanned is 201
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_avsnp138.txt...Done
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 23588106 and the number of bins to be scanned is 120
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_avsnp138.txt...Done
+NOTICE: Processing next batch with 237 unique variants in 237 input lines
+NOTICE: Database index loaded. Total number of bins is 23588106 and the number of bins to be scanned is 142
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_avsnp138.txt...Done
+-----------------------------------------------------------------
+NOTICE: Processing operation=f protocol=ljb26_all
+NOTICE: Finished reading 25 column headers for '-dbtype ljb26_all'
+
+NOTICE: Running system command <annotate_variation.pl -filter -dbtype ljb26_all -buildver hg19 -outfile runs/A/results/A runs/A/results/A.avinput /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/ -thread 4 -otherinfo>
+NOTICE: the --dbtype ljb26_all is assumed to be in generic ANNOVAR database format
+NOTICE: Output file with variants matching filtering criteria is written to runs/A/results/A.hg19_ljb26_all_dropped, and output file with other variants is written to runs/A/results/A.hg19_ljb26_all_filtered
+NOTICE: the queryfile runs/A/results/A.avinput contains 954 lines
+NOTICE: Creating new threads for query line 1 to 239
+NOTICE: Creating new threads for query line 240 to 478
+NOTICE: Creating new threads for query line 479 to 717
+NOTICE: Creating new threads for query line 718 to 954
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 557362 and the number of bins to be scanned is 10
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_ljb26_all.txt...Done
+NOTICE: Processing next batch with 237 unique variants in 237 input lines
+NOTICE: Database index loaded. Total number of bins is 557362 and the number of bins to be scanned is 31
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_ljb26_all.txt...Done
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 557362 and the number of bins to be scanned is 71
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_ljb26_all.txt...Done
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 557362 and the number of bins to be scanned is 68
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_ljb26_all.txt...Done
+-----------------------------------------------------------------
+NOTICE: Processing operation=f protocol=clinvar_20190305
+NOTICE: Finished reading 5 column headers for '-dbtype clinvar_20190305'
+
+NOTICE: Running system command <annotate_variation.pl -filter -dbtype clinvar_20190305 -buildver hg19 -outfile runs/A/results/A runs/A/results/A.avinput /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/ -thread 4 -otherinfo>
+NOTICE: the --dbtype clinvar_20190305 is assumed to be in generic ANNOVAR database format
+NOTICE: Output file with variants matching filtering criteria is written to runs/A/results/A.hg19_clinvar_20190305_dropped, and output file with other variants is written to runs/A/results/A.hg19_clinvar_20190305_filtered
+NOTICE: the queryfile runs/A/results/A.avinput contains 954 lines
+NOTICE: Creating new threads for query line 1 to 239
+NOTICE: Creating new threads for query line 240 to 478
+NOTICE: Creating new threads for query line 479 to 717
+NOTICE: Creating new threads for query line 718 to 954
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 45822 and the number of bins to be scanned is 18
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_clinvar_20190305.txt...Done
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 45822 and the number of bins to be scanned is 96
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_clinvar_20190305.txt...Done
+NOTICE: Processing next batch with 237 unique variants in 237 input lines
+NOTICE: Database index loaded. Total number of bins is 45822 and the number of bins to be scanned is 62
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_clinvar_20190305.txt...Done
+NOTICE: Processing next batch with 239 unique variants in 239 input lines
+NOTICE: Database index loaded. Total number of bins is 45822 and the number of bins to be scanned is 83
+NOTICE: Scanning filter database /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/annovar_dbs/hg19_clinvar_20190305.txt...Done
+-----------------------------------------------------------------
+NOTICE: Multianno output file is written to runs/A/results/A.hg19_multianno.txt
+NOTICE: Reading from runs/A/results/A.hg19_multianno.txt
+-----------------------------------------------------------------
+NOTICE: VCF output is written to runs/A/results/A.hg19_multianno.vcf

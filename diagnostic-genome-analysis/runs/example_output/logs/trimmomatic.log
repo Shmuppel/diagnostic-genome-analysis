@@ -1,0 +1,6 @@
+TrimmomaticPE: Started with arguments: -threads 2 /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001_R1.fastq /students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/samples/sample1_L001_R2.fastq runs/A/temp_files/trimmomatic_R1_P.fq.gz runs/A/temp_files/trimmomatic_R1_U.fq.gz runs/A/temp_files/trimmomatic_R2_P.fq.gz runs/A/temp_files/trimmomatic_R2_U.fq.gz ILLUMINACLIP:/students/2019-2020/Thema11/Dataprocessing/nsvandervegt_data/tools/trimmomatic-0.32-1/share/TruSeq3-PE.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:70
+Using PrefixPair: 'TACACTCTTTCCCTACACGACGCTCTTCCGATCT' and 'GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT'
+ILLUMINACLIP: Using 1 prefix pairs, 0 forward/reverse sequences, 0 forward only sequences, 0 reverse only sequences
+Quality encoding detected as phred33
+Input Read Pairs: 1424257 Both Surviving: 1169145 (82,09%) Forward Only Surviving: 168165 (11,81%) Reverse Only Surviving: 24045 (1,69%) Dropped: 62902 (4,42%)
+TrimmomaticPE: Completed successfully

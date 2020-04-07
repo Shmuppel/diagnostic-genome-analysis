@@ -1,0 +1,11 @@
+Only SNPs will be reported
+Min coverage:	8
+Min reads2:	2
+Min var freq:	0.3
+Min avg qual:	15
+P-value thresh:	0.05
+Reading input from runs/A/temp_files/mpileup_chr3.mpileup
+4456380 bases in pileup file
+90 variant positions (75 SNP, 15 indel)
+11 were failed by the strand-filter
+64 variant positions reported (64 SNP, 0 indel)
