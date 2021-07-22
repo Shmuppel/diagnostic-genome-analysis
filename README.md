@@ -12,3 +12,5 @@ Some small sample data is provided in the upper-level data folder for use with t
 The pipeline designed for this course has its own readme, with further instructions on how to setup  
 and run the pipeline through Snakemake. Simply clone the repository and navigate/refer to the  
 diagnostic-genome-analysis folder to get started. 
+
+![picture](diagnostic-genome-analysis/pipeline_DAG.png)
